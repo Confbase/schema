@@ -1,4 +1,4 @@
-// Copyright © 2018 NAME HERE <EMAIL ADDRESS>
+// Copyright © 2018 Thomas Fischer <thomas@confbase.com>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,15 +20,31 @@ import (
 	"github.com/Confbase/schema/infer"
 )
 
+var inferCfg infer.Config
+
 var inferCmd = &cobra.Command{
-	Use:   "infer",
+	Use:   "infer [...path]",
 	Short: "Infer schema from example data and output schema file",
-	Long: `Infer schema from example data and output schema file`,
+	Long: `Infer schema from example data and output schema file.
+
+If called with no arguments, 'schema infer' reads from stdin and writes the
+inferred schema to stdout.
+
+If called with arguments, each argument is interpreted as a file path. The 
+schema for each path is inferred and written to a new file of the same path, 
+but with its basename prefixed with the string 'schema.'. For example,
+
+$ schema config1.json config2.json
+
+will write the inferred schemas to schema.config1.json and schema.config2.json,
+respectively.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		infer.Infer(args)
+		infer.InferEntry(inferCfg, args)
 	},
 }
 
 func init() {
+	inferCmd.Flags().BoolVarP(&inferCfg.DoPretty, "pretty", "p", true, "pretty-print the output")
+	inferCmd.Flags().BoolVarP(&inferCfg.DoMakeRequired, "make-required", "r", false, "make all fields required")
 	RootCmd.AddCommand(inferCmd)
 }
