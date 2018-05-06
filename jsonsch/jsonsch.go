@@ -127,6 +127,13 @@ func NewArray(data []interface{}, doMakeRequired bool) (*ArraySchema, error) {
 	case uint, uint8, uint16, uint32, uint64, int, int8, int16, int32, int64, float32, float64:
 		a.Items = NewNumber()
 
+	case []interface{}:
+		arr, err := NewArray(v, doMakeRequired)
+		if err != nil {
+			return nil, err
+		}
+		a.Items = arr
+
 	case map[string]interface{}:
 		// value is another JSON object
 		obj, err := FromSchema(schema.New(v), doMakeRequired)
