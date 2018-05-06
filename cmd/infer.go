@@ -23,7 +23,7 @@ import (
 var inferCfg infer.Config
 
 var inferCmd = &cobra.Command{
-	Use:   "infer [...path]",
+	Use:   "infer [path]",
 	Short: "Infer schema from example data and output schema file",
 	Long: `Infer schema from example data and output schema file.
 
