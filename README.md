@@ -1,9 +1,10 @@
 [![Build Status](https://travis-ci.org/Confbase/schema.svg?branch=master)](https://travis-ci.org/Confbase/schema)
 
-# schema
-
 `schema` is a schema generator and validator tool. It supports JSON, YAML, TOML,
 XML, Protobuf.
+
+A common use is to generate [JSON Schema](https://json-schema.org) from
+arbirtrary JSON, YAML, TOML, XML, Protobuf.
 
 # Installation
 
@@ -16,6 +17,82 @@ See the Releases page for static binaries.
 Run `go get -u github.com/Confbase/schema`.
 
 # Usage & FAQ
+
+Run `schema -h` or `schema --help` to view the usage.
+
+### How do I infer the schema of arbitrary JSON/YAML/TOML/XML?
+
+Pipe it into `schema infer`. The data format is discovered automatically. Example:
+
+```
+$ # JSON example
+$ printf '{"name":"Thomas","color":"blue"}' | schema infer
+{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "color": {
+            "type": "string"
+        },
+        "name": {
+            "type": "string"
+        }
+    },
+    "required": []
+}
+$ # YAML example
+$ schema infer
+addr: 0.0.0.0
+port: 5001
+^D
+{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "addr": {
+            "type": "string"
+        },
+        "port": {
+            "type": "number"
+        }
+    },
+    "required": []
+}
+```
+
+### How do I make fields required in inferred schema?
+
+Use `--make-required`. If specified with no arguments, all fields will be
+required. Example:
+
+```
+$ printf '{"name":"Thomas","color":"blue"}' | schema infer --make-required
+{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "color": {
+            "type": "string"
+        },
+        "name": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "name",
+        "color"
+    ]
+}
+```
+
+### How do I generate compact schemas?
+
+Disable pretty-printing with `--pretty=false`. Example:
+
+```
+$ printf '{"name":"Thomas","color":"blue"}' | schema infer --pretty=false
+{"title":"","type":"object","properties":{"color":{"type":"string"},"name":{"type":"string"}},"required":[]}
+```
 
 # Testing
 
