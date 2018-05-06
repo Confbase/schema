@@ -17,6 +17,7 @@ const (
 	Array   Type = "array"
 	Number  Type = "number"
 	String  Type = "string"
+	Null    Type = "null"
 )
 
 type Schema struct {
@@ -49,6 +50,15 @@ func FromSchema(s *schema.Schema, doMakeRequired bool) (*Schema, error) {
 	js := New()
 	for key, value := range s.Data {
 		switch v := value.(type) {
+		case nil:
+			js.Properties[key] = NewNull()
+		case bool:
+			js.Properties[key] = NewBoolean()
+		case string:
+			js.Properties[key] = NewString()
+
+		case uint, uint8, uint16, uint32, uint64, int, int8, int16, int32, int64, float32, float64:
+			js.Properties[key] = NewNumber()
 
 		case map[string]interface{}:
 			// value is another JSON object
@@ -58,13 +68,25 @@ func FromSchema(s *schema.Schema, doMakeRequired bool) (*Schema, error) {
 			}
 			js.Properties[key] = obj
 
-		case bool:
-			js.Properties[key] = NewBoolean()
-		case string:
-			js.Properties[key] = NewString()
+		case map[interface{}]interface{}:
+			if len(v) == 0 {
+				return nil, fmt.Errorf("cannot infer type of empty map")
+			}
 
-		case uint, uint8, uint16, uint32, uint64, int, int8, int16, int32, int64, float32, float64:
-			js.Properties[key] = NewNumber()
+			data := make(map[string]interface{})
+			for vKey, vValue := range v {
+				dataKey, ok := vKey.(string)
+				if !ok {
+					return nil, fmt.Errorf("unrecognized map key type '%v'", reflect.TypeOf(vKey))
+				}
+				data[dataKey] = vValue
+			}
+
+			obj, err := FromSchema(schema.New(data), doMakeRequired)
+			if err != nil {
+				return nil, err
+			}
+			js.Properties[key] = obj
 
 		case []interface{}:
 			arr, err := NewArray(v, doMakeRequired)
@@ -85,6 +107,10 @@ func FromSchema(s *schema.Schema, doMakeRequired bool) (*Schema, error) {
 
 type Primitive struct {
 	Type Type `json:"type"`
+}
+
+func NewNull() Primitive {
+	return Primitive{Type: Null}
 }
 
 func NewBoolean() Primitive {
@@ -119,6 +145,8 @@ func NewArray(data []interface{}, doMakeRequired bool) (*ArraySchema, error) {
 
 	// set a.Items
 	switch v := data[0].(type) {
+	case nil:
+		a.Items = NewNull()
 	case bool:
 		a.Items = NewBoolean()
 	case string:
@@ -137,6 +165,28 @@ func NewArray(data []interface{}, doMakeRequired bool) (*ArraySchema, error) {
 	case map[string]interface{}:
 		// value is another JSON object
 		obj, err := FromSchema(schema.New(v), doMakeRequired)
+		if err != nil {
+			return nil, err
+		}
+		a.Items = obj
+
+	case map[interface{}]interface{}:
+		if len(v) == 0 {
+			return nil, fmt.Errorf("cannot infer type of empty map")
+		}
+
+		data := make(map[string]interface{})
+		for vKey, vValue := range v {
+			dataKey, ok := vKey.(string)
+			if !ok {
+				return nil, fmt.Errorf("unrecognized map key type '%v'", reflect.TypeOf(vKey))
+			}
+			data[dataKey] = vValue
+			// TODO: account for mode here
+			break
+		}
+
+		obj, err := FromSchema(schema.New(data), doMakeRequired)
 		if err != nil {
 			return nil, err
 		}

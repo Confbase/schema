@@ -3,17 +3,13 @@
 `schema` is a schema generator and validator tool.
 
 A common use is to generate [JSON Schema](https://json-schema.org) from
-arbirtrary JSON, YAML, TOML, XML, Protobuf.
+arbirtrary JSON, YAML, TOML, XML, and Protobuf.
 
 # Installation
 
-### Static Binaries
-
 See the Releases page for static binaries.
 
-### Building from Source
-
-Run `go get -u github.com/Confbase/schema`.
+Run `go get -u github.com/Confbase/schema` to build from source.
 
 # Usage & FAQ
 

@@ -123,6 +123,23 @@ infer_json_zero() {
 }'
 }
 
+infer_json_null() {
+    output=`printf '{"is2004":null}' | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "is2004": {
+            "type": "null"
+        }
+    },
+    "required": []
+}'
+}
+
 infer_json_boolean() {
     output=`printf '{"is2004":true}' | schema infer 2>&1`
     status="$?"
@@ -359,6 +376,23 @@ infer_yaml_zero() {
 }'
 }
 
+infer_yaml_null() {
+    output=`printf 'is2004: ~' | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "is2004": {
+            "type": "null"
+        }
+    },
+    "required": []
+}'
+}
+
 infer_yaml_boolean() {
     output=`printf 'is2004: true' | schema infer 2>&1`
     status="$?"
@@ -436,6 +470,63 @@ infer_yaml_array_of_booleans() {
 }'
 }
 
+infer_yaml_array_of_objects() {
+    output=`printf "people:\n  - name: thomas\n  - name: gordon" | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "people": {
+            "type": "array",
+            "items": {
+                "title": "",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": []
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_yaml_array_of_array_objects() {
+    output=`printf "people:\n  -\n    - name: thomas\n  -\n    - name: gordon" | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "people": {
+            "type": "array",
+            "items": {
+                "type": "array",
+                "items": {
+                    "title": "",
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        }
+                    },
+                    "required": []
+                }
+            }
+        }
+    },
+    "required": []
+}'
+}
+
 tests=(
     "infer_unrecognized_format"
     "infer_json_minimal"
@@ -445,6 +536,7 @@ tests=(
     "infer_json_positive_float"
     "infer_json_negative_float"
     "infer_json_zero"
+    "infer_json_null"
     "infer_json_boolean"
     "infer_json_array_of_strings"
     "infer_json_array_of_numbers"
@@ -457,8 +549,11 @@ tests=(
     "infer_yaml_positive_float"
     "infer_yaml_negative_float"
     "infer_yaml_zero"
+    "infer_yaml_null"
     "infer_yaml_boolean"
     "infer_yaml_array_of_strings"
     "infer_yaml_array_of_numbers"
     "infer_yaml_array_of_booleans"
+    "infer_yaml_array_of_objects"
+    "infer_yaml_array_of_array_objects"
 )
