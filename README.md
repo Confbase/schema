@@ -1,7 +1,6 @@
 [![Build Status](https://travis-ci.org/Confbase/schema.svg?branch=master)](https://travis-ci.org/Confbase/schema)
 
-`schema` is a schema generator and validator tool. It supports JSON, YAML, TOML,
-XML, Protobuf.
+`schema` is a schema generator and validator tool.
 
 A common use is to generate [JSON Schema](https://json-schema.org) from
 arbirtrary JSON, YAML, TOML, XML, Protobuf.
@@ -25,7 +24,6 @@ Run `schema -h` or `schema --help` to view the usage.
 Pipe it into `schema infer`. The data format is discovered automatically. Example:
 
 ```
-$ # JSON example
 $ printf '{"name":"Thomas","color":"blue"}' | schema infer
 {
     "title": "",
@@ -40,7 +38,11 @@ $ printf '{"name":"Thomas","color":"blue"}' | schema infer
     },
     "required": []
 }
-$ # YAML example
+```
+
+Another example:
+
+```
 $ schema infer
 addr: 0.0.0.0
 port: 5001
