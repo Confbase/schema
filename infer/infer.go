@@ -10,37 +10,39 @@ import (
 	"github.com/naoina/toml"
 	"gopkg.in/yaml.v2"
 
+	"github.com/Confbase/schema/example"
 	"github.com/Confbase/schema/jsonsch"
-	"github.com/Confbase/schema/schema"
 )
 
 func InferEntry(cfg Config, args []string) {
 	if len(args) == 0 {
-		Infer(os.Stdin, os.Stdout, cfg)
+		if err := Infer(os.Stdin, os.Stdout, cfg); err != nil {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			os.Exit(1)
+		}
 	} else {
 		fmt.Fprintf(os.Stderr, "error: not implemented yet\n")
 		os.Exit(1)
 	}
 }
 
-func Infer(r io.Reader, w io.Writer, cfg Config) {
+func Infer(r io.Reader, w io.Writer, cfg Config) error {
 	data, err := readToMap(r)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
-		os.Exit(1)
+		return err
 	}
 
-	s := schema.New(data)
-	js, err := jsonsch.FromSchema(s, cfg.DoMakeRequired)
+	ex := example.New(data)
+	js, err := jsonsch.FromExample(ex, cfg.DoMakeRequired)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error: failed to infer schema :/\n%v", err)
-		os.Exit(1)
+		return fmt.Errorf("failed to infer schema :/\n%v", err)
 	}
 
 	if err := js.Serialize(w, cfg.DoPretty); err != nil {
-		fmt.Fprintf(os.Stderr, "error: failed to serialize schema\n%v", err)
-		os.Exit(1)
+		return fmt.Errorf("failed to serialize schema\n%v", err)
 	}
+
+	return nil
 }
 
 func readToMap(r io.Reader) (map[string]interface{}, error) {

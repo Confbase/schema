@@ -27,8 +27,9 @@ var initCmd = &cobra.Command{
 	Short: "Initialize an instance of a schema",
 	Long: `Initialize an instance of a schema.
 
+If no schema is specified, stdin is interpreted as the schema.
+
 Multiple instance names may be specfied.`,
-	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		initcmd.Init(initSchemaPath, args)
 	},
