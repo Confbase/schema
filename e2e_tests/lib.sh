@@ -12,9 +12,9 @@ run_test() {
         exit 1
     fi
 
-    difference="$(diff <(printf "$expect") <(printf "$output"))"
+    difference="$(diff <(printf "%s" "$expect") <(printf "%s" "$output"))"
     if [ ! -z "$difference" ]; then
-        printf "FAIL. Expected this output:\n$expect\nBut got:\n$output"
+        printf "FAIL. Expected this output:\n%s\nBut got:\n%s" "$expect" "$output"
         exit 1
     fi
     printf "OK\n"

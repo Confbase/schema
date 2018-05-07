@@ -1,9 +1,79 @@
 [![Build Status](https://travis-ci.org/Confbase/schema.svg?branch=master)](https://travis-ci.org/Confbase/schema)
 
-`schema` is a schema generator and validator tool.
+`schema` is a schema generator, instantiator, and validator tool.
 
-A common use is to generate [JSON Schema](https://json-schema.org) from
-arbirtrary JSON, YAML, TOML, XML, and Protobuf.
+Common uses cases:
+
+* infer [JSON Schema](https://json-schema.org) from arbirtrary JSON,
+GraphQL schemas, protobuf schemas, YAML, TOML, and XML.
+
+```
+$ curl https://mystartup.io/my/json/endpoint | schema infer
+{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "age": {
+            "type": "number"
+        }
+    },
+    "required": []
+}
+```
+
+* `schema infer` automatically detects the format of the incoming data, so
+there's no need to specify whether it is JSON, YAML, TOML, etc.
+
+```
+$ cat config.yaml | schema infer --make-required
+{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "addr": {
+            "type": "string"
+        },
+        "port": {
+            "type": "number"
+        }
+    },
+    "required": ["addr", "port"]
+}
+```
+
+* instantiate JSON, GraphQL queries, protocol buffers, YAML, TOML, and XML
+from inferred schemas.
+
+```
+$ # assume the output of the previous example was written to the file my_schema
+$ cat my_schema | schema init
+{
+    "age": 0,
+    "name": ""
+}
+```
+
+* instantiate in a specific format
+
+```
+$ cat my_schema | schema init --yaml
+age: 0
+name: ''
+```
+
+* instantiate with random values
+
+```
+$ cat my_schema | schema init --random
+{
+    "age": -2921.198,
+    "name": "lOIslkjf"
+}
+```
+
 
 # Installation
 
@@ -99,8 +169,6 @@ This project has unit tests, formatting tests, and end-to-end tests.
 To run unit tests, run `go test -v ./...`.
 
 There is only one formatting test. It ensures all .go source files are gofmt'd.
-Run `git ls-files | grep '.go$' | xargs gofmt -l` to list all non-gofmt'd files
-in your local branch.
 
 The end-to-end tests require bash.
 
