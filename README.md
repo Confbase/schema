@@ -1,6 +1,10 @@
+<p align="center">
+    <img src="images/schema_logo_circle_transparent.png" style="max-width: 150px;" />
+</p>
+
 [![Build Status](https://travis-ci.org/Confbase/schema.svg?branch=master)](https://travis-ci.org/Confbase/schema)
 
-`schema` is a schema generator, instantiator, and validator tool.
+**schema** is a schema generator, instantiator, and validator tool.
 
 Common uses cases:
 
