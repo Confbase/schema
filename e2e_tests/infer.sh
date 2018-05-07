@@ -274,6 +274,60 @@ infer_json_array_of_array_objects() {
 }'
 }
 
+infer_json_array_of_objects_with_multiple_fields() {
+    output=`printf '{"people":[{"name":"Thomas","age":20}]}' | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect_either_or='true'
+    expect_either='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "people": {
+            "type": "array",
+            "items": {
+                "title": "",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "age": {
+                        "type": "number"
+                    }
+                },
+                "required": []
+            }
+        }
+    },
+    "required": []
+}'
+    expect_or='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "people": {
+            "type": "array",
+            "items": {
+                "title": "",
+                "type": "object",
+                "properties": {
+                    "age": {
+                        "type": "number"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": []
+            }
+        }
+    },
+    "required": []
+}'
+}
+
 infer_yaml_string() {
     output=`printf 'color: red' | schema infer 2>&1`
     status="$?"
@@ -527,6 +581,60 @@ infer_yaml_array_of_array_objects() {
 }'
 }
 
+infer_yaml_array_of_objects_with_multiple_fields() {
+    output=`printf "people:\n  - name: thomas\n    age: 20\n  - name: gordon\n    age: 60" | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect_either_or='true'
+    expect_either='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "people": {
+            "type": "array",
+            "items": {
+                "title": "",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "age": {
+                        "type": "number"
+                    }
+                },
+                "required": []
+            }
+        }
+    },
+    "required": []
+}'
+    expect_or='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "people": {
+            "type": "array",
+            "items": {
+                "title": "",
+                "type": "object",
+                "properties": {
+                    "age": {
+                        "type": "number"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": []
+            }
+        }
+    },
+    "required": []
+}'
+}
+
 tests=(
     "infer_unrecognized_format"
     "infer_json_minimal"
@@ -543,6 +651,7 @@ tests=(
     "infer_json_array_of_booleans"
     "infer_json_array_of_objects"
     "infer_json_array_of_array_objects"
+    "infer_json_array_of_objects_with_multiple_fields"
     "infer_yaml_string"
     "infer_yaml_positive_integer"
     "infer_yaml_negative_integer"
@@ -556,4 +665,5 @@ tests=(
     "infer_yaml_array_of_booleans"
     "infer_yaml_array_of_objects"
     "infer_yaml_array_of_array_objects"
+    "infer_yaml_array_of_objects_with_multiple_fields"
 )

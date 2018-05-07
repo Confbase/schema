@@ -8,7 +8,6 @@ import (
 )
 
 func buildSchema(fromValue interface{}, dst *interface{}, doMakeRequired bool) error {
-	// set a.Items
 	switch v := fromValue.(type) {
 	case nil:
 		*dst = NewNull()
@@ -60,7 +59,6 @@ func interInterMap2Sch(v map[interface{}]interface{}, doMakeRequired bool) (*Sch
 			return nil, fmt.Errorf("unrecognized map key type '%v'", reflect.TypeOf(vKey))
 		}
 		data[dataKey] = vValue
-		break
 	}
 
 	return FromExample(example.New(data), doMakeRequired)
