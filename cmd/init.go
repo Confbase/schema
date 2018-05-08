@@ -20,7 +20,7 @@ import (
 	"github.com/Confbase/schema/initcmd"
 )
 
-var initSchemaPath string
+var initCfg initcmd.Config
 
 var initCmd = &cobra.Command{
 	Use:   "init <schema> [instance name]",
@@ -29,13 +29,23 @@ var initCmd = &cobra.Command{
 
 If no schema is specified, stdin is interpreted as the schema.
 
-Multiple instance names may be specfied.`,
+Multiple instance names may be specfied.
+
+If more than one of the (json|yaml|toml|xml|protobuf|graphql) flags are set,
+behavior is undefined.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		initcmd.Init(initSchemaPath, args)
+		initcmd.Init(initCfg, args)
 	},
 }
 
 func init() {
-	initCmd.Flags().StringVarP(&initSchemaPath, "schema", "s", "", "specifies schema to init")
+	initCmd.Flags().StringVarP(&initCfg.SchemaPath, "schema", "s", "", "specifies schema to init")
+	initCmd.Flags().BoolVarP(&initCfg.DoJson, "json", "", false, "initialize as JSON")
+	initCmd.Flags().BoolVarP(&initCfg.DoYaml, "yaml", "", false, "initialize as YAML")
+	initCmd.Flags().BoolVarP(&initCfg.DoToml, "toml", "", false, "initialize as TOML")
+	initCmd.Flags().BoolVarP(&initCfg.DoXml, "xml", "", false, "initialize as XML")
+	initCmd.Flags().BoolVarP(&initCfg.DoProtobuf, "protobuf", "", false, "initialize as protocol buffer")
+	initCmd.Flags().BoolVarP(&initCfg.DoGraphQL, "graphql", "", false, "initialize as GraphQL instance")
+	initCmd.Flags().BoolVarP(&initCfg.DoPretty, "pretty", "", true, "pretty-print the output")
 	RootCmd.AddCommand(initCmd)
 }
