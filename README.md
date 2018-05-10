@@ -155,54 +155,10 @@ Run `go get -u github.com/Confbase/schema` to build from source.
 
 # FAQ
 
-* [How do I infer the schema of arbitrary JSON/YAML/TOML/XML?](#how-do-i-infer-the-schema-of-arbitrary-jsonyamltomlxml)
 * [How do I make fields required in inferred schema?](#how-do-i-make-fields-required-in-inferred-schema)
 * [How do I generate compact schemas?](#how-do-i-generate-compact-schemas)
 * [Why am I getting the error 'toml: cannot marshal nil interface {}'?](#why-am-i-getting-the-error-toml-cannot-marshal-nil-interface-)
-* [How do I show the 'empty' version of some data?](#how-do-i-show-the-empty-version-of-some-data)
-
-### How do I infer the schema of arbitrary JSON/YAML/TOML/XML?
-
-Pipe it into `schema infer`. The data format is discovered automatically. Example:
-
-```
-$ printf '{"name":"Thomas","color":"blue"}' | schema infer
-{
-    "title": "",
-    "type": "object",
-    "properties": {
-        "color": {
-            "type": "string"
-        },
-        "name": {
-            "type": "string"
-        }
-    },
-    "required": []
-}
-```
-
-Another example:
-
-```
-$ schema infer
-addr: 0.0.0.0
-port: 5001
-^D
-{
-    "title": "",
-    "type": "object",
-    "properties": {
-        "addr": {
-            "type": "string"
-        },
-        "port": {
-            "type": "number"
-        }
-    },
-    "required": []
-}
-```
+* [What is the behavior of inferring schemas from XML?](#what-is-the-behavior-of-inferring-schemas-from-xml)
 
 ### How do I make fields required in inferred schema?
 
@@ -243,55 +199,31 @@ $ printf '{"name":"Thomas","color":"blue"}' | schema infer --pretty=false
 Currently, toml does not support nil/null values. See
 [this issue on the toml GitHub page](https://github.com/toml-lang/toml/issues/30).
 
-### How do I show the 'empty' version of some data?
+### What is the behavior of inferring schemas from XML?
 
-Suppose you have a massive JSON object and you want to see the structure of it,
-without all the values. Infer the schema and then initialize an instance.
-Example:
+There is no well-defined mapping between XML and key-value stores. Despite this,
+schema still provides some support for inferring the schema of XML. schema uses
+the library github.com/clbanning/mxj. Users can expect the behavior of schema's
+infer command to match the behavior of github.com/clbanning/mxj's
+NewMapXmlReader function when parsing XML.
 
-```
-$ cat LEA-x.json
-{
-  "name": "Limited Edition Alpha",
-  "code": "LEA",
-  "gathererCode": "1E",
-  "magicCardsInfoCode": "al",
-  "releaseDate": "1993-08-05",
-  "border": "black",
-  "type": "core",
-  "booster": [
-    "rare",
-    "uncommon",
-    "uncommon",
-    "uncommon",
-    "common",
-    "common",
-...
-...
-(and on, and on, and on...)
-```
-
-It will be cumbersome to read through the file to understand how the JSON is
-structured. Instead, initialize an instance with default values:
+To give an idea of this behavior, consider this example:
 
 ```
-$ cat ~/LEA-x.json | schema infer | schema init
-{
-    "booster": [],
-    "border": "",
-    "cards": [],
-    "code": "",
-    "gathererCode": "",
-    "magicCardsInfoCode": "",
-    "mkm_id": 0,
-    "mkm_name": "",
-    "name": "",
-    "releaseDate": "",
-    "type": ""
-}
+$ cat example.xml
+<note>
+  <to>Tove</to>
+  <from>Jani</from>
+  <heading>Reminder</heading>
+  <body>Don't forget me this weekend!</body>
+</note>
+$ cat example.xml | schema infer | schema init --yaml
+note:
+  body: ""
+  from: ""
+  heading: ""
+  to: ""
 ```
-
-Nice!
 
 # Testing
 

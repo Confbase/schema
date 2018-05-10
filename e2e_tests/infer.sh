@@ -635,6 +635,287 @@ infer_yaml_array_of_objects_with_multiple_fields() {
 }'
 }
 
+infer_toml_string() {
+    output=`printf 'color = "red"' | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "color": {
+            "type": "string"
+        }
+    },
+    "required": []
+}'
+}
+
+infer_toml_positive_integer() {
+    output=`printf 'myNumber = 12' | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "myNumber": {
+            "type": "number"
+        }
+    },
+    "required": []
+}'
+}
+
+infer_toml_negative_integer() {
+    output=`printf 'myNumber = -12310' | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "myNumber": {
+            "type": "number"
+        }
+    },
+    "required": []
+}'
+}
+
+infer_toml_positive_float() {
+    output=`printf 'myNumber = 420.6' | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "myNumber": {
+            "type": "number"
+        }
+    },
+    "required": []
+}'
+}
+
+infer_toml_negative_float() {
+    output=`printf 'myNumber = -1902.32249' | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "myNumber": {
+            "type": "number"
+        }
+    },
+    "required": []
+}'
+}
+
+infer_toml_zero() {
+    output=`printf 'myNumber = 0' | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "myNumber": {
+            "type": "number"
+        }
+    },
+    "required": []
+}'
+}
+
+infer_toml_boolean() {
+    output=`printf 'is2004 = true' | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "is2004": {
+            "type": "boolean"
+        }
+    },
+    "required": []
+}'
+}
+
+infer_toml_array_of_strings() {
+    output=`printf 'people = ["bladee","thomas"]' | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "people": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_toml_array_of_floats() {
+    output=`printf 'ages = [ 12.1, -1.0, 43.0, -2.3, 0.0, -0.0, 0.0 ]' | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "ages": {
+            "type": "array",
+            "items": {
+                "type": "number"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_toml_array_of_ints() {
+    output=`printf 'ages = [ 12, -1, 43, -2, 0, -0, 0 ]' | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "ages": {
+            "type": "array",
+            "items": {
+                "type": "number"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_toml_array_of_booleans() {
+    output=`printf 'truthinesses = [ true, false, false ]' | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "boolean"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_toml_array_of_tables() {
+    output=`printf "[[people]]\nname = 'thomas'\n\n[[people]]\nname = 'gordon'" | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "people": {
+            "type": "array",
+            "items": {
+                "title": "",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": []
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+
+infer_toml_array_of_objects_with_multiple_fields() {
+    output=`printf "[[people]]\nname = 'thomas'\nage = 20\n\n[[people]]\nname = 'gordon'\nage = 60" | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect_either_or='true'
+    expect_either='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "people": {
+            "type": "array",
+            "items": {
+                "title": "",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "age": {
+                        "type": "number"
+                    }
+                },
+                "required": []
+            }
+        }
+    },
+    "required": []
+}'
+    expect_or='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "people": {
+            "type": "array",
+            "items": {
+                "title": "",
+                "type": "object",
+                "properties": {
+                    "age": {
+                        "type": "number"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": []
+            }
+        }
+    },
+    "required": []
+}'
+}
+
 tests=(
     "infer_unrecognized_format"
     "infer_json_minimal"
@@ -666,4 +947,17 @@ tests=(
     "infer_yaml_array_of_objects"
     "infer_yaml_array_of_array_objects"
     "infer_yaml_array_of_objects_with_multiple_fields"
+    "infer_toml_string"
+    "infer_toml_positive_integer"
+    "infer_toml_negative_integer"
+    "infer_toml_positive_float"
+    "infer_toml_negative_float"
+    "infer_toml_zero"
+    "infer_toml_boolean"
+    "infer_toml_array_of_strings"
+    "infer_toml_array_of_floats"
+    "infer_toml_array_of_ints"
+    "infer_toml_array_of_booleans"
+    "infer_toml_array_of_objects"
+    "infer_toml_array_of_objects_with_multiple_fields"
 )
