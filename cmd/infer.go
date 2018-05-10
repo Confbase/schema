@@ -27,6 +27,8 @@ var inferCmd = &cobra.Command{
 	Short: "Infer schema from example data and output schema file",
 	Long: `Infer schema from example data and output schema file.
 
+OVERVIEW
+
 If called with no arguments, 'schema infer' reads from stdin and writes the
 inferred schema to stdout.
 
@@ -37,7 +39,27 @@ but with its basename prefixed with the string 'schema.'. For example,
 $ schema config1.json config2.json
 
 will write the inferred schemas to schema.config1.json and schema.config2.json,
-respectively.`,
+respectively.
+
+COMMON MISTAKES
+
+TOML does not support nil/null values. 'schema infer' will not create schemas
+with null values. This has implications for the commonly-used idiom
+
+$ cat sample_data.json | schema infer | schema init --toml
+
+Since the input stream---'sample_data.json'---is JSON, it could contain null
+values. In turn, a schema with null values could be inferred and piped to
+'schema init --toml'. However, 'schema init --toml' will fail immediately
+upon encountering null values, since TOML does not support them.
+
+---
+
+There is no well-defined mapping between XML and key-value stores. Despite this,
+schema still provides some support for inferring the schema of XML. schema uses
+the library github.com/clbanning/mxj. Users can expect the behavior of schema's
+infer command to match the behavior of github.com/clbanning/mxj's
+NewMapXmlReader function when parsing XML.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		infer.InferEntry(inferCfg, args)
 	},

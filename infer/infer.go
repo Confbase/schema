@@ -1,12 +1,14 @@
 package infer
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
 
+	"github.com/clbanning/mxj"
 	"github.com/naoina/toml"
 	"gopkg.in/yaml.v2"
 
@@ -68,6 +70,11 @@ func readToMap(r io.Reader) (map[string]interface{}, error) {
 	data = make(map[string]interface{}) // be sure it's an empty map
 	if err = toml.Unmarshal(buf, &data); err == nil {
 		return data, nil
+	}
+
+	mv, err := mxj.NewMapXmlReader(bytes.NewReader(buf))
+	if err == nil {
+		return map[string]interface{}(mv), nil
 	}
 
 	return nil, fmt.Errorf("failed to recognize input data format")
