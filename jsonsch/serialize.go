@@ -9,7 +9,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func (s *Schema) Serialize(w io.Writer, doPretty bool) error {
+func SerializeSchema(s Schema, w io.Writer, doPretty bool) error {
 	enc := json.NewEncoder(w)
 	if doPretty {
 		enc.SetIndent("", "    ")

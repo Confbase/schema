@@ -68,5 +68,6 @@ NewMapXmlReader function when parsing XML.`,
 func init() {
 	inferCmd.Flags().BoolVarP(&inferCfg.DoPretty, "pretty", "p", true, "pretty-print the output")
 	inferCmd.Flags().BoolVarP(&inferCfg.DoMakeRequired, "make-required", "r", false, "make all fields required")
+	inferCmd.Flags().BoolVarP(&inferCfg.DoOmitRequired, "omit-required", "", true, "omit 'required' field if it's empty")
 	RootCmd.AddCommand(inferCmd)
 }
