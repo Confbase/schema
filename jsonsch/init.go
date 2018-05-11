@@ -6,9 +6,11 @@ import (
 )
 
 // Init is the only exposed method in this file
-func (s *Schema) Init() (map[string]interface{}, error) {
+// Init is a method on Schema which returns an
+// instance of the schema.
+func InitSchema(s Schema) (map[string]interface{}, error) {
 	data := make(map[string]interface{})
-	for key, value := range s.Properties {
+	for key, value := range s.GetProperties() {
 
 		tup, err := prop2Tuple(value, key)
 		if err != nil {
@@ -58,11 +60,11 @@ func storeTuple(tup tuple, dstMap map[string]interface{}, key string) error {
 		dstMap[key] = 0
 
 	case Object:
-		childSchema, err := FromSchema(tup.Data)
+		childSchema, err := FromSchema(tup.Data, false)
 		if err != nil {
 			return err
 		}
-		childInst, err := childSchema.Init()
+		childInst, err := InitSchema(childSchema)
 		if err != nil {
 			return err
 		}

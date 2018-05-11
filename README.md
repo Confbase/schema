@@ -33,8 +33,7 @@ $ curl https://example.com/json_endpoint | schema infer
         "age": {
             "type": "number"
         }
-    },
-    "required": []
+    }
 }
 ```
 
@@ -42,7 +41,7 @@ $ curl https://example.com/json_endpoint | schema infer
 there's no need to specify whether it is JSON, YAML, TOML, etc.:
 
 ```
-$ cat config.yaml | schema infer --make-required
+$ cat config.yaml | schema infer
 {
     "title": "",
     "type": "object",
@@ -53,8 +52,7 @@ $ cat config.yaml | schema infer --make-required
         "port": {
             "type": "number"
         }
-    },
-    "required": ["addr", "port"]
+    }
 }
 ```
 
@@ -62,7 +60,6 @@ $ cat config.yaml | schema infer --make-required
 from inferred schemas:
 
 ```
-$ # assume the output of the previous example was written to the file my_schema
 $ cat my_schema | schema init
 {
     "age": 0,
@@ -185,13 +182,33 @@ $ printf '{"name":"Thomas","color":"blue"}' | schema infer --make-required
 }
 ```
 
+Use `--omit-required=false` to always include the 'required' field in the
+inferred schema, even if it is an empty array:
+
+```
+$ printf '{"name":"Thomas","color":"blue"}' | schema infer --omit-required=false
+{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "color": {
+            "type": "string"
+        },
+        "name": {
+            "type": "string"
+        }
+    },
+    "required": []
+}
+```
+
 ### How do I generate compact schemas?
 
 Disable pretty-printing with `--pretty=false`. Example:
 
 ```
 $ printf '{"name":"Thomas","color":"blue"}' | schema infer --pretty=false
-{"title":"","type":"object","properties":{"color":{"type":"string"},"name":{"type":"string"}},"required":[]}
+{"title":"","type":"object","properties":{"color":{"type":"string"},"name":{"type":"string"}}}
 ```
 
 ### Why am I getting the error 'toml: cannot marshal nil interface {}'?

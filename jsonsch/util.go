@@ -7,7 +7,7 @@ import (
 	"github.com/Confbase/schema/example"
 )
 
-func buildSchema(fromValue interface{}, dst *interface{}, doMakeRequired bool) error {
+func buildSchema(fromValue interface{}, dst *interface{}, doOmitRequired, doMakeRequired bool) error {
 	switch v := fromValue.(type) {
 	case nil:
 		*dst = NewNull()
@@ -20,7 +20,7 @@ func buildSchema(fromValue interface{}, dst *interface{}, doMakeRequired bool) e
 		*dst = NewNumber()
 
 	case []interface{}:
-		arr, err := NewArray(v, doMakeRequired)
+		arr, err := NewArray(v, doOmitRequired, doMakeRequired)
 		if err != nil {
 			return err
 		}
@@ -28,14 +28,14 @@ func buildSchema(fromValue interface{}, dst *interface{}, doMakeRequired bool) e
 
 	case map[string]interface{}:
 		// value is another JSON object
-		obj, err := FromExample(example.New(v), doMakeRequired)
+		obj, err := FromExample(example.New(v), doOmitRequired, doMakeRequired)
 		if err != nil {
 			return err
 		}
 		*dst = obj
 
 	case map[interface{}]interface{}:
-		obj, err := interInterMap2Sch(v, doMakeRequired)
+		obj, err := interInterMap2Sch(v, doOmitRequired, doMakeRequired)
 		if err != nil {
 			return err
 		}
@@ -47,7 +47,7 @@ func buildSchema(fromValue interface{}, dst *interface{}, doMakeRequired bool) e
 	return nil
 }
 
-func interInterMap2Sch(v map[interface{}]interface{}, doMakeRequired bool) (*Schema, error) {
+func interInterMap2Sch(v map[interface{}]interface{}, doOmitRequired, doMakeRequired bool) (Schema, error) {
 	if len(v) == 0 {
 		return nil, fmt.Errorf("cannot infer type of empty map")
 	}
@@ -61,5 +61,5 @@ func interInterMap2Sch(v map[interface{}]interface{}, doMakeRequired bool) (*Sch
 		data[dataKey] = vValue
 	}
 
-	return FromExample(example.New(data), doMakeRequired)
+	return FromExample(example.New(data), doOmitRequired, doMakeRequired)
 }

@@ -4,6 +4,10 @@ run_test() {
     fn="$1"
 
     printf "Running '$fn'..."
+    if [ ! "$(type -t $fn)" = "function" ]; then
+        printf "FAIL. '$fn' is not a function in the test scripts\n"
+        exit 1
+    fi
     eval "$fn"
 
     if [ ! "$status" = "$expect_status" ]; then

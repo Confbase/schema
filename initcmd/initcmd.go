@@ -29,14 +29,14 @@ func Init(cfg Config, targets []string) {
 			os.Exit(1)
 		}
 	}
-	js, err := jsonsch.FromSchema(data)
+	js, err := jsonsch.FromSchema(data, false)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: input JSON is not a valid schema\n%v\n", err)
 		os.Exit(1)
 	}
 
 	if len(targets) == 0 {
-		instance, err := js.Init()
+		instance, err := jsonsch.InitSchema(js)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: failed to initialize instance of schema\n%v\n", err)
 			os.Exit(1)
@@ -56,7 +56,7 @@ func Init(cfg Config, targets []string) {
 		}
 		defer f.Close()
 
-		instance, err := js.Init()
+		instance, err := jsonsch.InitSchema(js)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: failed to initialize instance of schema\n%v\n", err)
 			os.Exit(1)

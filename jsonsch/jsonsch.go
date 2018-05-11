@@ -13,21 +13,36 @@ const (
 	Null    Type = "null"
 )
 
-type Schema struct {
-	Title       string                 `json:"title"`
-	Type        Type                   `json:"type"`
-	Description string                 `json:"description,omitempty"`
-	Properties  map[string]interface{} `json:"properties"`
-	Required    []string               `json:"required"`
+type Schema interface {
+	GetTitle() string
+	SetTitle(string)
+	GetType() Type
+	SetType(Type)
+	GetDescription() string
+	SetDescription(string)
+	GetProperties() map[string]interface{}
+	SetProperties(map[string]interface{})
+	SetProperty(string, interface{})
+	GetRequired() []string
+	SetRequired([]string)
 }
 
-func New() *Schema {
-	return &Schema{
-		Type:       Object,
-		Properties: make(map[string]interface{}),
-		Required:   make([]string, 0),
+/*
+func includeRequired(s *Schema) interface{} {
+	st := reflect.TypeOf(*s)
+	fs := []reflect.StructField{}
+	for i := 0; i < st.NumField(); i++ {
+		fs = append(fs, st.Field(i))
+		if fs[i].Name == "Required" {
+			fs[i].Tag = reflect.StructTag(`json:"required"`)
+		}
 	}
+	st2 := reflect.StructOf(fs)
+	v := reflect.ValueOf(*s)
+	v2 := v.Convert(st2)
+	return v2.Interface()
 }
+*/
 
 type Primitive struct {
 	Type        Type   `json:"type"`
@@ -55,7 +70,7 @@ type ArraySchema struct {
 	Items interface{} `json:"items"`
 }
 
-func NewArray(data []interface{}, doMakeRequired bool) (*ArraySchema, error) {
+func NewArray(data []interface{}, doOmitRequired, doMakeRequired bool) (*ArraySchema, error) {
 	// TODO: incoporate entire array depending on mode
 	// E.g.,
 	// - use the first element to infer array type
@@ -68,7 +83,7 @@ func NewArray(data []interface{}, doMakeRequired bool) (*ArraySchema, error) {
 
 	a := ArraySchema{Type: Array}
 
-	if err := buildSchema(data[0], &a.Items, doMakeRequired); err != nil {
+	if err := buildSchema(data[0], &a.Items, doOmitRequired, doMakeRequired); err != nil {
 		return nil, err
 	}
 

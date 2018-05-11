@@ -35,12 +35,12 @@ func Infer(r io.Reader, w io.Writer, cfg Config) error {
 	}
 
 	ex := example.New(data)
-	js, err := jsonsch.FromExample(ex, cfg.DoMakeRequired)
+	js, err := jsonsch.FromExample(ex, cfg.DoOmitRequired, cfg.DoMakeRequired)
 	if err != nil {
 		return fmt.Errorf("failed to infer schema :/\n%v", err)
 	}
 
-	if err := js.Serialize(w, cfg.DoPretty); err != nil {
+	if err := jsonsch.SerializeSchema(js, w, cfg.DoPretty); err != nil {
 		return fmt.Errorf("failed to serialize schema\n%v", err)
 	}
 
