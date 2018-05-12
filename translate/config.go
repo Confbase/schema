@@ -1,7 +1,7 @@
 package translate
 
 type Config struct {
-	SchemaPath string
+	InputPath  string
 	DoJson     bool
 	DoYaml     bool
 	DoToml     bool

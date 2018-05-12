@@ -1,19 +1,13 @@
 package infer
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
-
-	"github.com/clbanning/mxj"
-	"github.com/naoina/toml"
-	"gopkg.in/yaml.v2"
 
 	"github.com/Confbase/schema/example"
 	"github.com/Confbase/schema/jsonsch"
+	"github.com/Confbase/schema/util"
 )
 
 func InferEntry(cfg Config, args []string) {
@@ -29,7 +23,7 @@ func InferEntry(cfg Config, args []string) {
 }
 
 func Infer(r io.Reader, w io.Writer, cfg Config) error {
-	data, err := readToMap(r)
+	data, err := util.MuxDecode(r)
 	if err != nil {
 		return err
 	}
@@ -45,37 +39,4 @@ func Infer(r io.Reader, w io.Writer, cfg Config) error {
 	}
 
 	return nil
-}
-
-func readToMap(r io.Reader) (map[string]interface{}, error) {
-	// ReadAll is necessary, since the input stream could be only
-	// traversable once; we must be sure to save the data
-	// into a buffer on the first pass, so that we can read it
-	// *multiple* times
-	buf, err := ioutil.ReadAll(r)
-	if err != nil {
-		return nil, err
-	}
-
-	data := make(map[string]interface{})
-	if err = json.Unmarshal(buf, &data); err == nil {
-		return data, nil
-	}
-
-	data = make(map[string]interface{}) // be sure it's an empty map
-	if err = yaml.Unmarshal(buf, &data); err == nil {
-		return data, nil
-	}
-
-	data = make(map[string]interface{}) // be sure it's an empty map
-	if err = toml.Unmarshal(buf, &data); err == nil {
-		return data, nil
-	}
-
-	mv, err := mxj.NewMapXmlReader(bytes.NewReader(buf))
-	if err == nil {
-		return map[string]interface{}(mv), nil
-	}
-
-	return nil, fmt.Errorf("failed to recognize input data format")
 }

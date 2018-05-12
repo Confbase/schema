@@ -1,4 +1,4 @@
-// Copyright © 2018 NAME HERE <EMAIL ADDRESS>
+// Copyright © 2018 Confbase
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 package cmd
 
 import (
-
 	"github.com/spf13/cobra"
 
 	"github.com/Confbase/schema/translate"
@@ -26,11 +25,13 @@ var translateCfg translate.Config
 // translateCmd represents the translate command
 var translateCmd = &cobra.Command{
 	Use:   "translate",
-	Short: "translate input into desired type",
-	Long: `translate input into desired type
-If no schema is specified, stdin is interpreted as the schema.
+	Short: "translate input data into another format",
+	Long: `Translate input data into another format.
 
-Multiple instance names may be specfied.
+If no input file is specified, stdin is used as input.
+
+Multiple output paths may be specfied. If none are specified, translated data
+is written to stdout.
 
 If more than one of the (json|yaml|toml|xml|protobuf|graphql) flags are set,
 behavior is undefined.`,
@@ -40,7 +41,7 @@ behavior is undefined.`,
 }
 
 func init() {
-	translateCmd.Flags().StringVarP(&translateCfg.SchemaPath, "schema", "s", "", "specifies schema to init")
+	translateCmd.Flags().StringVarP(&translateCfg.InputPath, "input", "i", "", "path to input data to translate")
 	translateCmd.Flags().BoolVarP(&translateCfg.DoJson, "json", "", false, "initialize as JSON")
 	translateCmd.Flags().BoolVarP(&translateCfg.DoYaml, "yaml", "", false, "initialize as YAML")
 	translateCmd.Flags().BoolVarP(&translateCfg.DoToml, "toml", "", false, "initialize as TOML")

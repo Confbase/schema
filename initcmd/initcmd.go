@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/Confbase/schema/jsonsch"
+	"github.com/Confbase/schema/util"
 )
 
 func Init(cfg Config, targets []string) {
@@ -36,12 +37,12 @@ func Init(cfg Config, targets []string) {
 	}
 
 	if len(targets) == 0 {
-		instance, err := jsonsch.InitSchema(js)
+		inst, err := jsonsch.InitSchema(js)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: failed to initialize instance of schema\n%v\n", err)
 			os.Exit(1)
 		}
-		if err := jsonsch.SerializeInstance(instance, os.Stdout, cfg.OutFmt(), cfg.DoPretty); err != nil {
+		if err := util.DemuxEncode(os.Stdout, inst, util.OutFmt(cfg.OutFmt()), cfg.DoPretty); err != nil {
 			fmt.Fprintf(os.Stderr, "error: failed to serialize instance of schema\n%v\n", err)
 			os.Exit(1)
 		}
@@ -56,12 +57,12 @@ func Init(cfg Config, targets []string) {
 		}
 		defer f.Close()
 
-		instance, err := jsonsch.InitSchema(js)
+		inst, err := jsonsch.InitSchema(js)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: failed to initialize instance of schema\n%v\n", err)
 			os.Exit(1)
 		}
-		if err := jsonsch.SerializeInstance(instance, f, cfg.OutFmt(), cfg.DoPretty); err != nil {
+		if err := util.DemuxEncode(os.Stdout, inst, util.OutFmt(cfg.OutFmt()), cfg.DoPretty); err != nil {
 			fmt.Fprintf(os.Stderr, "error: failed to serialize instance of schema\n%v\n", err)
 			os.Exit(1)
 		}
