@@ -1,7 +1,7 @@
 #!/bin/bash
 
 printf "Running gofmt tests..."
-gofmt_output="$(git ls-files | grep -v "$(git ls-files -d)" | grep '.go$' | xargs gofmt -l)"
+gofmt_output="$(git ls-files | grep -v "^$(git ls-files -d)\$" | grep '.go$' | xargs gofmt -l)"
 if [ ! -z "$gofmt_output" ]; then
     printf "FAIL. The following files are not gofmt'd:\n$gofmt_output" 1>&2
     exit 1
