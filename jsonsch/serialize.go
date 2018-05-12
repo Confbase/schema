@@ -2,11 +2,7 @@ package jsonsch
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
-
-	"github.com/naoina/toml"
-	"gopkg.in/yaml.v2"
 )
 
 func SerializeSchema(s Schema, w io.Writer, doPretty bool) error {
@@ -20,6 +16,7 @@ func SerializeSchema(s Schema, w io.Writer, doPretty bool) error {
 	return nil
 }
 
+/*
 func SerializeInstance(inst map[string]interface{}, w io.Writer, outFmt string, doPretty bool) error {
 	switch outFmt {
 	case "json":
@@ -45,3 +42,4 @@ func SerializeInstance(inst map[string]interface{}, w io.Writer, outFmt string, 
 	}
 	return nil
 }
+*/

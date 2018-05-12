@@ -1,15 +1,11 @@
 package translate
 
-import(
-	"os"
-	"encoding/json"
-	"io"
-	"io/ioutil"
-	"github.com/clbanning/mxj"
-    "github.com/naoina/toml"
-	"gopkg.in/yaml.v2"
-	"bytes"
+import (
 	"fmt"
+	"io"
+	"os"
+
+	"github.com/Confbase/schema/util"
 )
 
 func TranslateEntry(cfg Config, args []string) {
@@ -24,66 +20,124 @@ func TranslateEntry(cfg Config, args []string) {
 	}
 }
 
-func Translate(r io.Reader, w io.Writer, cfg Config) error{
-	m, err := readToMap(r)
-	if (err != nil){
-		return err;
+func Translate(r io.Reader, w io.Writer, cfg Config) error {
+	m, err := util.MuxDecode(r)
+	if err != nil {
+		return err
+	}
+	if !isAllKeysStrs(m) {
+		// TODO: fix this horrible hack
+		interMap := make(map[interface{}]interface{})
+		for k, v := range m {
+			interMap[k] = v
 		}
-		outFmt := cfg.OutFmt()
-		switch cfg.OutFmt() {
-		case "json":
-			enc := json.NewEncoder(w)
-			if cfg.DoPretty {
-				enc.SetIndent("", "    ")
-			}
-			if err := enc.Encode(&m); err != nil {
-				return err
-			}
-		case "yaml":
-			if err := yaml.NewEncoder(w).Encode(&m); err != nil {
-				return err
-			}
-		case "toml":
-			if err := toml.NewEncoder(w).Encode(&m); err != nil {
-				return err
-			}
-		case "xml", "protobuf", "graphql":
-			return fmt.Errorf("'%v' is not implemented yet", outFmt)
-		default:
-			return fmt.Errorf("unrecognized output format '%v'", outFmt)
+		goodM, err := mkKeysStrsMap(interMap)
+		if err != nil {
+			return err
 		}
-		return nil
+		return util.DemuxEncode(w, goodM, util.OutFmt(cfg.OutFmt()), cfg.DoPretty)
+	}
+	return util.DemuxEncode(w, m, util.OutFmt(cfg.OutFmt()), cfg.DoPretty)
 }
 
-func readToMap(r io.Reader) (map[string]interface{}, error) {
-	// ReadAll is necessary, since the input stream could be only
-	// traversable once; we must be sure to save the data
-	// into a buffer on the first pass, so that we can read it
-	// *multiple* times
-	buf, err := ioutil.ReadAll(r)
-	if err != nil {
-		return nil, err
+func isAllKeysStrs(some interface{}) bool {
+	xs, ok := some.([]interface{})
+	if ok {
+		for _, value := range xs {
+			switch v := value.(type) {
+
+			case map[interface{}]interface{}:
+				for subK, subV := range v {
+					_, isStr := subK.(string)
+					if !isStr || !isAllKeysStrs(subV) {
+						return false
+					}
+				}
+
+			case []interface{}:
+				if !isAllKeysStrs(v) {
+					return false
+				}
+			default:
+				continue
+			}
+		}
+		return true
 	}
 
-	data := make(map[string]interface{})
-	if err = json.Unmarshal(buf, &data); err == nil {
-		return data, nil
-	}
+	// TODO: use code generation or somehow de-duplicate this
+	m, ok := some.(map[interface{}]interface{})
+	if ok {
+		for _, value := range m {
+			switch v := value.(type) {
 
-	data = make(map[string]interface{}) // be sure it's an empty map
-	if err = yaml.Unmarshal(buf, &data); err == nil {
-		return data, nil
-	}
+			case map[interface{}]interface{}:
+				for subK, subV := range v {
+					_, isStr := subK.(string)
+					if !isStr || !isAllKeysStrs(subV) {
+						return false
+					}
+				}
 
-	data = make(map[string]interface{}) // be sure it's an empty map
-	if err = toml.Unmarshal(buf, &data); err == nil {
-		return data, nil
+			case []interface{}:
+				if !isAllKeysStrs(v) {
+					return false
+				}
+			default:
+				continue
+			}
+		}
+		return true
 	}
+	return false
+}
 
-	mv, err := mxj.NewMapXmlReader(bytes.NewReader(buf))
-	if err == nil {
-		return map[string]interface{}(mv), nil
+func mkKeysStrsMap(m map[interface{}]interface{}) (map[string]interface{}, error) {
+	res := make(map[string]interface{})
+	for key, value := range m {
+		keyStr, ok := key.(string)
+		if !ok {
+			return nil, fmt.Errorf("found non-str key in object")
+		}
+		switch v := value.(type) {
+		case map[interface{}]interface{}:
+			strMap, err := mkKeysStrsMap(v)
+			if err != nil {
+				return nil, err
+			}
+			res[keyStr] = strMap
+		case []interface{}:
+			goodSlice, err := mkKeysStrsSlice(v)
+			if err != nil {
+				return nil, err
+			}
+			res[keyStr] = goodSlice
+		default:
+			res[keyStr] = value
+		}
 	}
+	return res, nil
+}
 
-	return nil, fmt.Errorf("failed to recognize input data format")
+func mkKeysStrsSlice(xs []interface{}) ([]interface{}, error) {
+	res := make([]interface{}, 0)
+	for _, elem := range xs {
+		switch v := elem.(type) {
+		case map[interface{}]interface{}:
+			strMap, err := mkKeysStrsMap(v)
+			if err != nil {
+				return nil, err
+			}
+			res = append(res, strMap)
+		case []interface{}:
+			goodSlice, err := mkKeysStrsSlice(v)
+			if err != nil {
+				return nil, err
+			}
+			res = append(res, goodSlice)
+		default:
+			res = append(res, v)
+		}
+	}
+	return res, nil
 }
