@@ -56,7 +56,7 @@ func storeTuple(tup tuple, dstMap map[string]interface{}, key string, popLists b
 		dstMap[key] = ""
 	case Boolean:
 		dstMap[key] = false
-	case Number:
+	case Integer, Number:
 		dstMap[key] = 0
 
 	case Object:

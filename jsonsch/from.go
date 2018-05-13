@@ -35,11 +35,23 @@ func FromSchema(data map[string]interface{}, doOmitRequired bool) (Schema, error
 	}
 
 	if reqInter, ok := data["required"]; ok {
-		if req, ok := reqInter.([]string); ok {
-			js.SetRequired(req)
-		} else if req, ok := reqInter.([]interface{}); !ok || len(req) > 0 {
+		wrongType := false
+		strSlice := make([]string, 0)
+		interSlice, ok := reqInter.([]interface{})
+		if ok {
+			for _, v := range interSlice {
+				if s, isStr := v.(string); isStr {
+					strSlice = append(strSlice, s)
+				} else {
+					wrongType = false
+					break
+				}
+			}
+		}
+		if !ok || wrongType {
 			return nil, fmt.Errorf("'required' field must be an array of strings")
 		}
+		js.SetRequired(strSlice)
 	}
 	if titleInter, ok := data["title"]; ok {
 		if title, ok := titleInter.(string); ok {

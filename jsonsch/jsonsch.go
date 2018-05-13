@@ -9,6 +9,7 @@ const (
 	Boolean Type = "boolean"
 	Array   Type = "array"
 	Number  Type = "number"
+	Integer Type = "integer"
 	String  Type = "string"
 	Null    Type = "null"
 )
