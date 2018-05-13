@@ -37,7 +37,7 @@ func Init(cfg Config, targets []string) {
 	}
 
 	if len(targets) == 0 {
-		inst, err := jsonsch.InitSchema(js)
+		inst, err := jsonsch.InitSchema(js, cfg.DoPopLists)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: failed to initialize instance of schema\n%v\n", err)
 			os.Exit(1)
@@ -57,7 +57,7 @@ func Init(cfg Config, targets []string) {
 		}
 		defer f.Close()
 
-		inst, err := jsonsch.InitSchema(js)
+		inst, err := jsonsch.InitSchema(js, cfg.DoPopLists)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: failed to initialize instance of schema\n%v\n", err)
 			os.Exit(1)
