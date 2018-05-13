@@ -9,6 +9,7 @@ type Config struct {
 	DoProtobuf bool
 	DoGraphQL  bool
 	DoPretty   bool
+	DoPopLists bool
 }
 
 func (cfg *Config) OutFmt() string {

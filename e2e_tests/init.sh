@@ -63,6 +63,18 @@ init_json_array() {
 
     expect_status='0'
     expect='{
+    "truthfulnesses": [
+        false
+    ]
+}'
+}
+
+init_json_array_no_pop_lists() {
+    output=`printf '{"truthfulnesses": [true,false,false,true]}' | schema infer | schema init --populate-lists=false 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
     "truthfulnesses": []
 }'
 }
@@ -125,6 +137,15 @@ init_yaml_array() {
     status="$?"
 
     expect_status='0'
+    expect='truthfulnesses:
+- false'
+}
+
+init_yaml_array_no_populate_lists() {
+    output=`printf '{"truthfulnesses": [true,false,false,true]}' | schema infer | schema init --yaml --populate-lists=false 2>&1`
+    status="$?"
+
+    expect_status='0'
     expect='truthfulnesses: []'
 }
 
@@ -184,6 +205,14 @@ init_toml_array() {
     status="$?"
 
     expect_status='0'
+    expect='truthfulnesses = [false]'
+}
+
+init_toml_array_no_populate_lists() {
+    output=`printf '{"truthfulnesses": [true,false,false,true]}' | schema infer | schema init --toml --populate-lists=false 2>&1`
+    status="$?"
+
+    expect_status='0'
     expect='truthfulnesses = []'
 }
 
@@ -205,6 +234,7 @@ tests=(
     "init_json_boolean"
     "init_json_null"
     "init_json_array"
+    "init_json_array_no_pop_lists"
     "init_json_nested_object"
     "init_yaml_minimal"
     "init_yaml_string"
@@ -212,6 +242,7 @@ tests=(
     "init_yaml_boolean"
     "init_yaml_null"
     "init_yaml_array"
+    "init_yaml_array_no_populate_lists"
     "init_yaml_nested_object"
     "init_toml_minimal"
     "init_toml_string"
@@ -219,5 +250,6 @@ tests=(
     "init_toml_boolean"
     "init_toml_null"
     "init_toml_array"
+    "init_toml_array_no_populate_lists"
     "init_toml_nested_object"
 )

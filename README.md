@@ -126,11 +126,15 @@ structured. Instead, infer the schema and initialize an instance with default
 values:
 
 ```
-$ cat ~/LEA-x.json | schema infer | schema init
+$ cat ~/LEA-x.json | schema infer | schema init --populate-lists=false
 {
-    "booster": [],
+    "booster": [
+        ""
+    ],
     "border": "",
-    "cards": [],
+    "cards": [
+        ""
+    ],
     "code": "",
     "gathererCode": "",
     "magicCardsInfoCode": "",
@@ -152,12 +156,13 @@ Run `go get -u github.com/Confbase/schema` to build from source.
 
 # FAQ
 
-* [How do I make fields required in inferred schema?](#how-do-i-make-fields-required-in-inferred-schema)
+* [How do I make fields required in inferred schemas?](#how-do-i-make-fields-required-in-inferred-schemas)
 * [How do I generate compact schemas?](#how-do-i-generate-compact-schemas)
 * [Why am I getting the error 'toml: cannot marshal nil interface {}'?](#why-am-i-getting-the-error-toml-cannot-marshal-nil-interface-)
 * [What is the behavior of inferring schemas from XML?](#what-is-the-behavior-of-inferring-schemas-from-xml)
+* [How do I initialize empty lists?](#how-can-i-initialize-empty-lists)
 
-### How do I make fields required in inferred schema?
+### How do I make fields required in inferred schemas?
 
 Use `--make-required`. If specified with no arguments, all fields will be
 required. Example:
@@ -240,6 +245,31 @@ note:
   from: ""
   heading: ""
   to: ""
+```
+
+### How do I initialize empty lists?
+
+By default, `schema init` will initialize one element of each list. To
+iniitialize empty lists instead, use the flag `--populate-lists=false`.
+Example:
+
+
+```
+$ cat schema.json | schema init --populate-lists=false
+{
+    "truthinesses": []
+}
+```
+
+Compared to the default behavior:
+
+```
+$ cat schema.json | schema init
+{
+    "truthinesses": [
+        false
+    ]
+}
 ```
 
 # Testing
