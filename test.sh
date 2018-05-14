@@ -31,6 +31,7 @@ source ./e2e_tests/lib.sh
 for test_module in `ls e2e_tests/*.sh | grep -v 'lib.sh'`; do
     source "$test_module" # populates the $tests variable
     for testcase in "${tests[@]}"; do
+        setup_test "$testcase"
         run_test "$testcase"
     done
 done
