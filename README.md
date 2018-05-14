@@ -4,6 +4,8 @@
 
 [![Build Status](https://travis-ci.org/Confbase/schema.svg?branch=master)](https://travis-ci.org/Confbase/schema)
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/Confbase/schema)](https://goreportcard.com/report/github.com/Confbase/schema)
+
 # Table of Contents
 
 * [Introduction](#introduction)
