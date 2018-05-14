@@ -23,7 +23,7 @@ import (
 var initCfg initcmd.Config
 
 var initCmd = &cobra.Command{
-	Use:   "init <schema> [instance name]",
+	Use:   "init [instance name]",
 	Short: "Initialize an instance of a schema",
 	Long: `Initialize an instance of a schema.
 
@@ -32,7 +32,11 @@ If no schema is specified, stdin is interpreted as the schema.
 Multiple instance names may be specfied.
 
 If more than one of the (json|yaml|toml|xml|protobuf|graphql) flags are set,
-behavior is undefined.`,
+behavior is undefined.
+
+$ref fields are resolved via network requests by default. Network requests can
+be avoided with the --skip-refs flag, which resolves the ref to an empty object
+({}).`,
 	Run: func(cmd *cobra.Command, args []string) {
 		initcmd.Init(initCfg, args)
 	},
