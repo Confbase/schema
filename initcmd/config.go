@@ -10,6 +10,7 @@ type Config struct {
 	DoGraphQL  bool
 	DoPretty   bool
 	DoPopLists bool
+	DoSkipRefs bool
 }
 
 func (cfg *Config) OutFmt() string {

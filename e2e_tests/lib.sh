@@ -8,6 +8,14 @@ run_test() {
         printf "FAIL. '$fn' is not a function in the test scripts\n"
         exit 1
     fi
+
+    if [ "$requires_network" = 'true' ] && [ "$offline_mode" = 'true' ]; then
+        printf "SKIPPING (requires network)\n"
+        requires_network='false'
+        return
+    fi
+    requires_network='false'
+
     eval "$fn"
 
     if [ ! "$status" = "$expect_status" ]; then

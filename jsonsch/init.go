@@ -5,10 +5,14 @@ import (
 	"reflect"
 )
 
-// Init is the only exposed method in this file
-// Init is a method on Schema which returns an
+// InitSchema is the only exposed method in this file
+// InitSchema is a method on Schema which returns an
 // instance of the schema.
-func InitSchema(s Schema, popLists bool) (map[string]interface{}, error) {
+//
+// InitSchema assumes all $ref fields are already either
+// 1) resolved and replaced by a network request
+// 2) replaced by an empty object
+func InitSchema(s Schema, doPopLists bool) (map[string]interface{}, error) {
 	data := make(map[string]interface{})
 	for key, value := range s.GetProperties() {
 
@@ -17,7 +21,7 @@ func InitSchema(s Schema, popLists bool) (map[string]interface{}, error) {
 			return nil, err
 		}
 
-		if err := storeTuple(tup, data, key, popLists); err != nil {
+		if err := storeTuple(tup, data, key, doPopLists); err != nil {
 			return nil, err
 		}
 	}
@@ -41,13 +45,13 @@ func prop2Tuple(prop interface{}, key string) (tuple, error) {
 	}
 	vType, ok := vTypeInter.(string)
 	if !ok {
-		return tuple{}, fmt.Errorf("key '%v' must 'type' field with string value", key)
+		return tuple{}, fmt.Errorf("key '%v' must have 'type' field with string value", key)
 	}
 	return tuple{Data: v, Type: Type(vType)}, nil
 
 }
 
-func storeTuple(tup tuple, dstMap map[string]interface{}, key string, popLists bool) error {
+func storeTuple(tup tuple, dstMap map[string]interface{}, key string, doPopLists bool) error {
 	switch tup.Type {
 
 	case Null:
@@ -60,11 +64,11 @@ func storeTuple(tup tuple, dstMap map[string]interface{}, key string, popLists b
 		dstMap[key] = 0
 
 	case Object:
-		childSchema, err := FromSchema(tup.Data, false)
+		childSchema, err := FromSchema(tup.Data, false, true)
 		if err != nil {
 			return err
 		}
-		childInst, err := InitSchema(childSchema, popLists)
+		childInst, err := InitSchema(childSchema, doPopLists)
 		if err != nil {
 			return err
 		}
@@ -72,7 +76,7 @@ func storeTuple(tup tuple, dstMap map[string]interface{}, key string, popLists b
 
 	case Array:
 		dstMap[key] = make([]interface{}, 0)
-		if popLists {
+		if doPopLists {
 			elemSchema, ok := tup.Data["items"]
 			if !ok {
 				return fmt.Errorf("key '%v' has type 'Array' but no 'items' field", key)
@@ -112,7 +116,7 @@ func appendTuple(tup tuple, dstSlice []interface{}, key string) ([]interface{}, 
 		elem = 0
 
 	case Object:
-		childSchema, err := FromSchema(tup.Data, false)
+		childSchema, err := FromSchema(tup.Data, false, true)
 		if err != nil {
 			return nil, err
 		}

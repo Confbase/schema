@@ -6,33 +6,40 @@ import (
 	"github.com/Confbase/schema/example"
 )
 
-func FromSchema(data map[string]interface{}, doOmitRequired bool) (Schema, error) {
+func FromSchema(data map[string]interface{}, doOmitReq, doSkipRefs bool) (Schema, error) {
 	var js Schema
-	if doOmitRequired {
+	if doOmitReq {
 		js = NewOmitReq()
 	} else {
 		js = NewInclReq()
 	}
 
-	if typeInter, ok := data["type"]; ok {
-		if jsType, ok := typeInter.(string); ok {
-			js.SetType(Type(jsType))
-		} else {
-			return nil, fmt.Errorf("'type' field must be a string")
-		}
-	} else {
-		return nil, fmt.Errorf("'type' field does not exist")
+	if err := ReplaceRefs(data, doSkipRefs); err != nil {
+		return nil, err
 	}
 
-	if propsInter, ok := data["properties"]; ok {
-		if properties, ok := propsInter.(map[string]interface{}); ok {
-			js.SetProperties(properties)
-		} else {
-			return nil, fmt.Errorf("'properties' field must be an object")
-		}
-	} else {
+	// type field
+	typeInter, ok := data["type"]
+	if !ok {
+		return nil, fmt.Errorf("'type' field does not exist")
+	}
+	jsType, ok := typeInter.(string)
+	if !ok {
+		return nil, fmt.Errorf("'type' field must be a string")
+	}
+	js.SetType(Type(jsType))
+
+	// properties field
+	propsInter, ok := data["properties"]
+	if !ok {
 		return nil, fmt.Errorf("'properties' field does not exist")
 	}
+	properties, ok := propsInter.(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("'properties' field must be an object")
+
+	}
+	js.SetProperties(properties)
 
 	if reqInter, ok := data["required"]; ok {
 		wrongType := false
@@ -71,9 +78,9 @@ func FromSchema(data map[string]interface{}, doOmitRequired bool) (Schema, error
 	return js, nil
 }
 
-func FromExample(ex *example.Example, doOmitRequired, doMakeRequired bool) (Schema, error) {
+func FromExample(ex *example.Example, doOmitReq, doMakeReq bool) (Schema, error) {
 	var js Schema
-	if doOmitRequired {
+	if doOmitReq {
 		js = NewOmitReq()
 	} else {
 		js = NewInclReq()
@@ -81,12 +88,12 @@ func FromExample(ex *example.Example, doOmitRequired, doMakeRequired bool) (Sche
 
 	for key, value := range ex.Data {
 		var childDst interface{}
-		if err := buildSchema(value, &childDst, doOmitRequired, doMakeRequired); err != nil {
+		if err := buildSchema(value, &childDst, doOmitReq, doMakeReq); err != nil {
 			return nil, err
 		}
 		js.SetProperty(key, childDst)
 
-		if doMakeRequired {
+		if doMakeReq {
 			js.SetRequired(append(js.GetRequired(), key))
 		}
 	}

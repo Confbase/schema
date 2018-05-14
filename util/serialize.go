@@ -45,10 +45,8 @@ func MuxDecode(r io.Reader) (map[string]interface{}, error) {
 	return nil, fmt.Errorf("failed to recognize input data format")
 }
 
-type OutFmt string
-
-func DemuxEncode(w io.Writer, data interface{}, outFmt OutFmt, doPretty bool) error {
-	switch string(outFmt) {
+func DemuxEncode(w io.Writer, data interface{}, outFmt string, doPretty bool) error {
+	switch outFmt {
 	case "json":
 		enc := json.NewEncoder(w)
 		if doPretty {

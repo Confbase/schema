@@ -122,6 +122,54 @@ init_json_integer_and_required() {
 }'
 }
 
+init_json_follow_ref() {
+    requires_network='true'
+
+    output=`printf '{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "description": "A representation of a person, company, organization, or place",
+    "type": "object",
+    "properties": {
+        "geo": { "$ref": "http://json-schema.org/geo" }
+    }
+}' | schema init 2>&1`
+    status="$?"
+
+    expect_either_or='true'
+    expect_status='0'
+    expect_either='{
+    "geo": {
+        "latitude": 0,
+        "longitude": 0
+    }
+}'
+    expect_or='{
+    "geo": {
+        "longitude": 0,
+        "latitude": 0
+    }
+}'
+}
+
+init_json_skip_ref() {
+    requires_network='true'
+
+    output=`printf '{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "description": "A representation of a person, company, organization, or place",
+    "type": "object",
+    "properties": {
+        "geo": { "$ref": "http://json-schema.org/geo" }
+    }
+}' | schema init --skip-refs 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "geo": {}
+}'
+}
+
 init_yaml_minimal() {
     output=`printf '{}' | schema infer | schema init --yaml 2>&1`
     status="$?"
@@ -213,6 +261,46 @@ init_yaml_integer_and_required() {
 firstName: ""'
     expect_or='firstName: ""
 age: 0'
+}
+
+init_yaml_follow_ref() {
+    requires_network='true'
+
+    output=`printf '{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "description": "A representation of a person, company, organization, or place",
+    "type": "object",
+    "properties": {
+        "geo": { "$ref": "http://json-schema.org/geo" }
+    }
+}' | schema init --yaml 2>&1`
+    status="$?"
+
+    expect_either_or='true'
+    expect_status='0'
+    expect_either='geo:
+  latitude: 0
+  longitude: 0'
+    expect_or='geo:
+  longitude: 0
+  latitude: 0'
+}
+
+init_yaml_skip_ref() {
+    requires_network='true'
+
+    output=`printf '{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "description": "A representation of a person, company, organization, or place",
+    "type": "object",
+    "properties": {
+        "geo": { "$ref": "http://json-schema.org/geo" }
+    }
+}' | schema init --yaml --skip-refs 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='geo: {}'
 }
 
 init_toml_minimal() {
@@ -308,6 +396,47 @@ firstName = ""'
 age = 0'
 }
 
+init_toml_follow_ref() {
+    requires_network='true'
+
+    output=`printf '{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "description": "A representation of a person, company, organization, or place",
+    "type": "object",
+    "properties": {
+        "geo": { "$ref": "http://json-schema.org/geo" }
+    }
+}' | schema init --toml 2>&1`
+    status="$?"
+
+    expect_either_or='true'
+    expect_status='0'
+    expect_either='[geo]
+latitude = 0
+longitude = 0'
+    expect_or='[geo]
+longitude = 0
+latitude = 0'
+}
+
+init_toml_skip_ref() {
+    requires_network='true'
+
+    output=`printf '{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "description": "A representation of a person, company, organization, or place",
+    "type": "object",
+    "properties": {
+        "geo": { "$ref": "http://json-schema.org/geo" }
+    }
+}' | schema init --toml --skip-refs 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='' # toml encodes to the empty string for empty objects
+    # and nests of empty objects
+}
+
 tests=(
     "init_invalid_schema"
     "init_json_minimal"
@@ -319,6 +448,8 @@ tests=(
     "init_json_array_no_pop_lists"
     "init_json_nested_object"
     "init_json_integer_and_required"
+    "init_json_follow_ref"
+    "init_json_skip_ref"
     "init_yaml_minimal"
     "init_yaml_string"
     "init_yaml_number"
@@ -328,6 +459,8 @@ tests=(
     "init_yaml_array_no_populate_lists"
     "init_yaml_nested_object"
     "init_yaml_integer_and_required"
+    "init_yaml_follow_ref"
+    "init_yaml_skip_ref"
     "init_toml_minimal"
     "init_toml_string"
     "init_toml_number"
@@ -337,4 +470,6 @@ tests=(
     "init_toml_array_no_populate_lists"
     "init_toml_nested_object"
     "init_toml_integer_and_required"
+    "init_toml_follow_ref"
+    "init_toml_skip_ref"
 )
