@@ -48,5 +48,6 @@ func init() {
 	initCmd.Flags().BoolVarP(&initCfg.DoGraphQL, "graphql", "", false, "initialize as GraphQL instance")
 	initCmd.Flags().BoolVarP(&initCfg.DoPretty, "pretty", "", true, "pretty-print the output")
 	initCmd.Flags().BoolVarP(&initCfg.DoPopLists, "populate-lists", "", true, "populate lists with one element")
+	initCmd.Flags().BoolVarP(&initCfg.DoSkipRefs, "skip-refs", "", false, "use {} in place of $ref fields")
 	RootCmd.AddCommand(initCmd)
 }
