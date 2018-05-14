@@ -122,9 +122,13 @@ init_json_integer_and_required() {
 }'
 }
 
-init_json_follow_ref() {
+setup_init_json_follow_ref() {
     requires_network='true'
+    status='0'
+    expect_status='0'
+}
 
+init_json_follow_ref() {
     output=`printf '{
     "$schema": "http://json-schema.org/draft-06/schema#",
     "description": "A representation of a person, company, organization, or place",
@@ -152,8 +156,6 @@ init_json_follow_ref() {
 }
 
 init_json_skip_ref() {
-    requires_network='true'
-
     output=`printf '{
     "$schema": "http://json-schema.org/draft-06/schema#",
     "description": "A representation of a person, company, organization, or place",
@@ -263,6 +265,12 @@ firstName: ""'
 age: 0'
 }
 
+setup_init_yaml_follow_ref() {
+    requires_network='true'
+    status='0'
+    expect_status='0'
+}
+
 init_yaml_follow_ref() {
     requires_network='true'
 
@@ -287,8 +295,6 @@ init_yaml_follow_ref() {
 }
 
 init_yaml_skip_ref() {
-    requires_network='true'
-
     output=`printf '{
     "$schema": "http://json-schema.org/draft-06/schema#",
     "description": "A representation of a person, company, organization, or place",
@@ -396,6 +402,12 @@ firstName = ""'
 age = 0'
 }
 
+setup_init_toml_follow_ref() {
+    requires_network='true'
+    status='0'
+    expect_status='0'
+}
+
 init_toml_follow_ref() {
     requires_network='true'
 
@@ -420,8 +432,6 @@ latitude = 0'
 }
 
 init_toml_skip_ref() {
-    requires_network='true'
-
     output=`printf '{
     "$schema": "http://json-schema.org/draft-06/schema#",
     "description": "A representation of a person, company, organization, or place",

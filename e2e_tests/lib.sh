@@ -1,5 +1,22 @@
 #!/bin/bash
 
+setup_test() {
+    fn="setup_$1"
+    if [ ! "$(type -t $fn)" = "function" ]; then
+        return
+    fi
+    printf "Setting up '$fn'..."
+
+    eval "$fn"
+
+    if [ ! "$status" = "$expect_status" ]; then
+        printf "FAIL. Expected status $expect_status, but got $status\n"
+        printf "Output:\n$output"
+        exit 1
+    fi
+    printf "OK\n"
+}
+
 run_test() {
     fn="$1"
 
