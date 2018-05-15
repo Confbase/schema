@@ -36,7 +36,9 @@ behavior is undefined.
 
 $ref fields are resolved via network requests by default. Network requests can
 be avoided with the --skip-refs flag, which resolves the ref to an empty object
-({}).`,
+({}).
+
+See the man pages for idioms, examples, and more information.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		initcmd.Init(initCfg, args)
 	},
