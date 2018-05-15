@@ -10,7 +10,7 @@ else
 fi
 
 printf "Running gofmt tests..."
-gofmt_output="$(git ls-files | grep -v "^$(git ls-files -d)\$" | grep '.go$' | xargs gofmt -l 2>&1)"
+gofmt_output="$(git ls-files | grep -v "^$(git ls-files -d)\$" | grep -v '^vendor/' | grep '.go$' | xargs gofmt -l 2>&1)"
 if [ ! -z "$gofmt_output" ]; then
     printf "FAIL. The following files are not gofmt'd:\n$gofmt_output" 1>&2
     exit 1
