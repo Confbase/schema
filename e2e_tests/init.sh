@@ -447,6 +447,152 @@ init_toml_skip_ref() {
     # and nests of empty objects
 }
 
+init_xml_minimal() {
+    output=`printf '{}' | schema infer | schema init --xml 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='<doc/>'
+}
+
+init_xml_string() {
+    output=`printf '{"name": "Thomas"}' | schema infer | schema init --xml 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='<name/>'
+}
+
+init_xml_number() {
+    output=`printf '{"age": 20}' | schema infer | schema init --xml 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='<age>0</age>'
+}
+
+init_xml_boolean() {
+    output=`printf '{"isHandsome": true}' | schema infer | schema init --xml 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='<isHandsome>false</isHandsome>'
+}
+
+init_xml_null() {
+    output=`printf '{"badField": null}' | schema infer | schema init --xml 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='<badField/>'
+}
+
+init_xml_array() {
+    output=`printf '{"truthfulnesses": [true,false,false,true]}' | schema infer | schema init --xml 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='<doc>
+    <truthfulnesses>false</truthfulnesses>
+</doc>'
+}
+
+init_xml_array_no_populate_lists() {
+    output=`printf '{"truthfulnesses": [true,false,false,true]}' | schema infer | schema init --xml --populate-lists=false 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='<doc>
+    <truthfulnesses/></doc>'
+}
+
+init_xml_nested_object() {
+    output=`printf '{"myObj": {"field1":1,"field2":"Finland"}}' | schema infer | schema init --xml 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='<myObj>
+    <field1>0</field1>
+    <field2/>
+</myObj>'
+}
+
+init_xml_integer_and_required() {
+    output=`printf '{
+    "title": "Person",
+    "type": "object",
+    "properties": {
+        "firstName": {
+            "type": "string"
+        },
+        "age": {
+            "description": "Age in years",
+            "type": "integer",
+            "minimum": 0
+        }
+    },
+    "required": ["firstName", "age"]
+}' | schema init --xml 2>&1`
+    status="$?"
+
+    expect_either_or='true'
+    expect_status='0'
+    expect_either='<doc>
+    <age>0</age>
+    <firstName/>
+</doc>'
+    expect_or='<doc>
+    <firstName/>
+    <age>0</age>
+</doc>'
+}
+
+setup_init_xml_follow_ref() {
+    requires_network='true'
+    status='0'
+    expect_status='0'
+}
+
+init_xml_follow_ref() {
+    requires_network='true'
+
+    output=`printf '{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "description": "A representation of a person, company, organization, or place",
+    "type": "object",
+    "properties": {
+        "geo": { "$ref": "http://json-schema.org/geo" }
+    }
+}' | schema init --xml 2>&1`
+    status="$?"
+
+    expect_either_or='true'
+    expect_status='0'
+    expect_either='<geo>
+    <latitude>0</latitude>
+    <longitude>0</longitude>
+</geo>'
+    expect_or='<geo>
+    <longitude>0</longitude>
+    <latitude>0</latitude>
+</geo>'
+}
+
+init_xml_skip_ref() {
+    output=`printf '{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "description": "A representation of a person, company, organization, or place",
+    "type": "object",
+    "properties": {
+        "geo": { "$ref": "http://json-schema.org/geo" }
+    }
+}' | schema init --xml --skip-refs 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='<geo/>' # clbanning/mxj has this behavior...
+}
+
 tests=(
     "init_invalid_schema"
     "init_json_minimal"
@@ -482,4 +628,15 @@ tests=(
     "init_toml_integer_and_required"
     "init_toml_follow_ref"
     "init_toml_skip_ref"
+    "init_xml_minimal"
+    "init_xml_string"
+    "init_xml_number"
+    "init_xml_boolean"
+    "init_xml_null"
+    "init_xml_array"
+    "init_xml_array_no_populate_lists"
+    "init_xml_nested_object"
+    "init_xml_integer_and_required"
+    "init_xml_follow_ref"
+    "init_xml_skip_ref"
 )
