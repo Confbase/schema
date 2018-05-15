@@ -1,6 +1,7 @@
 package jsonsch
 
 type SchemaInclReq struct {
+	SchemaField string                 `json:"$schema,omitempty"`
 	Title       string                 `json:"title"`
 	Type        Type                   `json:"type"`
 	Description string                 `json:"description,omitempty"`
@@ -58,4 +59,12 @@ func (s *SchemaInclReq) SetTitle(t string) {
 
 func (s *SchemaInclReq) GetTitle() string {
 	return s.Title
+}
+
+func (s *SchemaInclReq) SetSchemaField(sf string) {
+	s.SchemaField = sf
+}
+
+func (s *SchemaInclReq) GetSchemaField() string {
+	return s.SchemaField
 }

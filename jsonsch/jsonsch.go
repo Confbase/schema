@@ -15,6 +15,8 @@ const (
 )
 
 type Schema interface {
+	GetSchemaField() string
+	SetSchemaField(string)
 	GetTitle() string
 	SetTitle(string)
 	GetType() Type
