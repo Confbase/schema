@@ -34,6 +34,8 @@ func Infer(r io.Reader, w io.Writer, cfg Config) error {
 		return fmt.Errorf("failed to infer schema :/\n%v", err)
 	}
 
+	js.SetSchemaField(cfg.SchemaField)
+
 	if err := jsonsch.SerializeSchema(js, w, cfg.DoPretty); err != nil {
 		return fmt.Errorf("failed to serialize schema\n%v", err)
 	}

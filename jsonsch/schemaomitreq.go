@@ -1,6 +1,7 @@
 package jsonsch
 
 type SchemaOmitReq struct {
+	SchemaField string                 `json:"$schema,omitempty"`
 	Title       string                 `json:"title"`
 	Type        Type                   `json:"type"`
 	Description string                 `json:"description,omitempty"`
@@ -58,4 +59,12 @@ func (s *SchemaOmitReq) SetTitle(t string) {
 
 func (s *SchemaOmitReq) GetTitle() string {
 	return s.Title
+}
+
+func (s *SchemaOmitReq) SetSchemaField(sf string) {
+	s.SchemaField = sf
+}
+
+func (s *SchemaOmitReq) GetSchemaField() string {
+	return s.SchemaField
 }
