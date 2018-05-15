@@ -161,6 +161,7 @@ Run `go get -u github.com/Confbase/schema` to build from source.
 * [Why am I getting the error 'toml: cannot marshal nil interface {}'?](#why-am-i-getting-the-error-toml-cannot-marshal-nil-interface-)
 * [What is the behavior of inferring and translating XML?](#what-is-the-behavior-of-inferring-and-translating-xml)
 * [How do I initialize empty lists?](#how-can-i-initialize-empty-lists)
+* [Where is the $schema field in inferred schemas?](#where-is-the-schema-field-in-inferred-schemas)
 
 ### How do I make fields required in inferred schemas?
 
@@ -307,6 +308,27 @@ $ cat schema.json | schema init
     "truthinesses": [
         false
     ]
+}
+```
+
+### Where is the `$schema` field in inferred schemas?
+
+The `$schema` field can be specified with the `--schema-field` (short form `-s`)
+flag.
+
+Example:
+
+```
+$ cat my_data.json | schema infer -s 'http://json-schema.org/draft-06/schema'
+{
+    "$schema": "http://json-schema.org/draft-06/schema",
+    "title": "",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string"
+        }
+    }
 }
 ```
 
