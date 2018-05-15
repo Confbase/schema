@@ -63,7 +63,22 @@ func DemuxEncode(w io.Writer, data interface{}, outFmt string, doPretty bool) er
 		if err := toml.NewEncoder(w).Encode(&data); err != nil {
 			return err
 		}
-	case "xml", "protobuf", "graphql":
+	case "xml":
+		strMap, ok := data.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("casting data to map[string]interface failed")
+		}
+		mv := mxj.Map(strMap)
+		if doPretty {
+			if err := mv.XmlIndentWriter(w, "", "    "); err != nil {
+				return err
+			}
+		} else {
+			if err := mv.XmlWriter(w); err != nil {
+				return err
+			}
+		}
+	case "protobuf", "graphql":
 		return fmt.Errorf("'%v' is not implemented yet", outFmt)
 	default:
 		return fmt.Errorf("unrecognized output format '%v'", outFmt)

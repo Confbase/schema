@@ -159,7 +159,7 @@ Run `go get -u github.com/Confbase/schema` to build from source.
 * [How do I make fields required in inferred schemas?](#how-do-i-make-fields-required-in-inferred-schemas)
 * [How do I generate compact schemas?](#how-do-i-generate-compact-schemas)
 * [Why am I getting the error 'toml: cannot marshal nil interface {}'?](#why-am-i-getting-the-error-toml-cannot-marshal-nil-interface-)
-* [What is the behavior of inferring schemas from XML?](#what-is-the-behavior-of-inferring-schemas-from-xml)
+* [What is the behavior of inferring and translating XML?](#what-is-the-behavior-of-inferring-and-translating-xml)
 * [How do I initialize empty lists?](#how-can-i-initialize-empty-lists)
 
 ### How do I make fields required in inferred schemas?
@@ -221,7 +221,7 @@ $ printf '{"name":"Thomas","color":"blue"}' | schema infer --pretty=false
 Currently, toml does not support nil/null values. See
 [this issue on the toml GitHub page](https://github.com/toml-lang/toml/issues/30).
 
-### What is the behavior of inferring schemas from XML?
+### What is the behavior of inferring and translating XML?
 
 There is no well-defined mapping between XML and key-value stores. Despite this,
 schema still provides some support for inferring the schema of XML. schema uses
@@ -239,13 +239,51 @@ $ cat example.xml
   <heading>Reminder</heading>
   <body>Don't forget me this weekend!</body>
 </note>
-$ cat example.xml | schema infer | schema init --yaml
+$ cat example.xml | schema translate --yaml
 note:
-  body: ""
-  from: ""
-  heading: ""
-  to: ""
+  body: Don't forget me this weekend!
+  from: Jani
+  heading: Reminder
+  to: Tove
 ```
+
+**WARNING**: Here is an example of where the mapping fails:
+
+```
+$ schema translate --xml
+{}
+^D
+<doc/>
+$ schema translate --xml | schema translate --json
+{}
+^D
+{
+    "doc": ""
+}
+```
+
+As demonstrated by the example above, there are inputs **X** such that
+translating **X** from format **F** to XML and back to format **F** gives an
+output not equal to **X**. In the example, an empty JSON object (`{}`) was
+translated to XML and then translated back to JSON. The resulting JSON
+(`{"doc":""}`) is clearly not an empty object.
+
+**WARNING**: All type information is lost in XML.
+
+For example:
+
+```
+$ schema translate --xml | schema translate --json
+{"height": 6.0, "isAcadian": true}
+{
+    "doc": {
+        "height": "6",
+        "isAcadian": "true"
+    }
+}
+```
+
+All values are interpreted as strings.
 
 ### How do I initialize empty lists?
 
