@@ -1,0 +1,162 @@
+.TH SCHEMA 1
+.SH NAME
+schema \-  a schema generator, instantiator, and validator tool.
+.SH SYNOPSIS
+.B schema
+[command] [flags]
+.SH DESCRIPTION
+.B schema
+provides three subcommands
+.RS
+.TP
+.BR infer
+Infer the schema of example data and output schema file.
+.TP
+.BR init
+Initialize an instance of a schema with default values
+.TP
+.BR translate
+Translate data from one format to another
+.RE
+.TP
+Supported formats: JSON, YAML, TOML, XML, GraphQL schema, protobuf, schema
+.SH OPTIONS
+.TP
+.BR schema
+infer [path] [flags]
+.RS
+.P
+If called with no arguments, 'schema infer' reads from stdin and writes the
+inferred schema to stdout.
+.P
+If called with arguments, each argument is interpreted as a file path. The
+schema for each path is inferred and written to a new file of the same path,
+but with its basename prefixed with the string 'schema.'. For example:
+.P
+$ schema config1.json config2.json
+.P
+will write the inferred schemas to schema.config1.json and schema.config2.json,
+respectively.
+.P
+.B
+Flags:
+.RS
+.TP
+.BR \-h ", " \-\-help
+help for infer
+.TP
+.BR \-r ", " \-\-make\-required
+make all fields required
+.TP
+.BR \-\-omit\-required
+omit 'required' field if it's empty (default true)
+.TP
+.BR \-p ", " \-\-pretty
+pretty-print the output (default true)
+.TP
+.BR \-s ", " \-\-schema\-field (string)
+specifies the value of the $schema field
+.RE
+.RE
+.P
+.BR schema
+init [instance name] [flags]
+.RS
+.P
+If no schema is specified, stdin is interpreted as the schema.
+.P
+Multiple instance names may be specfied.
+.P
+If more than one of the (json|yaml|toml|xml|protobuf|graphql) flags are set, behavior is undefined.
+.P
+$ref fields are resolved via network requests by default. Network requests can
+be avoided with the --skip-refs flag, which resolves the ref to an empty object
+({}).
+.P
+.B
+Flags:
+.RS
+.TP
+.BR   \-\-graphql
+initialize as GraphQL instance
+.TP
+.BR \-h ", " \-\-help
+help for init
+.TP
+.BR   \-\-json
+initialize as JSON
+.TP
+.BR   \-\-populate\-lists
+populate lists with one element (default true)
+.TP
+.BR   \-\-pretty
+pretty-print the output (default true)
+.TP
+.BR   \-\-protobuf
+initialize as protocol buffer
+.TP
+.BR \-s ", " \-\-schema (string)
+specifies schema to init
+.TP
+.BR   \-\-skip-refs
+use {} in place of $ref fields
+.TP
+.BR   \-\-toml
+initialize as TOML
+.TP
+.BR   \-\-xml
+initialize as xml
+.TP
+.BR   \-\-yaml
+initialize as yaml
+.RE
+.RE
+.P
+.BR schema
+translate [flags]
+.RS
+.P
+Translate input data into another format
+.P
+If no input file is specified, stdin is used as input.
+.P
+Multiple output paths may be specfied. If none are specified, translated data is written to stdout.
+.P
+If more than one of the (json|yaml|toml|xml|protobuf|graphql) flags are set, behavior is undefined.
+.P
+.B
+Flags:
+.RS
+.TP
+.BR   \-\-graphql
+initialize as GraphQL instance
+.TP
+.BR \-h ", " \-\-help
+help for init
+.TP
+.BR \-i ", " \-\-input (string)
+path to input data to translate
+.TP
+.BR   \-\-json
+initialize as JSON
+.TP
+.BR   \-\-pretty
+pretty-print the output (default true)
+.TP
+.BR   \-\-protobuf
+initialize as protocol buffer
+.TP
+.BR   \-\-toml
+initialize as TOML
+.TP
+.BR   \-\-xml
+initialize as xml
+.TP
+.BR   \-\-yaml
+initialize as yaml
+.RE
+.RE
+.P
+.TP
+.BR \-h ", " \-\-help
+Use "schema [command] --help" for more information about a command
