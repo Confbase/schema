@@ -18,20 +18,43 @@
 
 Common uses cases:
 
-* Infer [JSON Schema](https://json-schema.org) from arbirtrary JSON,
+* Infer [GraphQL](https://graphql.org) schemas from arbirtrary JSON,
 GraphQL schemas, protobuf schemas, YAML, TOML, and XML:
 
 ```
-$ curl https://example.com/json_endpoint | schema infer
+$ curl https://example.com/some_endpoint | schema infer --graphql
+type People {
+    age: Float!
+    name: String!
+}
+
+type Object {
+    people: [People!]!
+}
+```
+
+* Omit `--graphql` to get [JSON Schema](https://json-schema.org):
+
+```
+$ curl https://example.com/some_endpoint | schema infer
 {
     "title": "",
     "type": "object",
     "properties": {
-        "name": {
-            "type": "string"
-        },
-        "age": {
-            "type": "number"
+        "people": {
+            "type": "array",
+            "items": {
+                "title": "",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "age": {
+                        "type": "number"
+                    }
+                }
+            }
         }
     }
 }
@@ -92,61 +115,6 @@ $ cat my_schema | schema init --random
     "name": "lOIslkjf"
 }
 ```
-
-* Show the structure of a large file:
-
-Suppose you have a massive JSON object and you want to see the structure of it,
-without all the values. Infer the schema and then initialize an instance.
-Example:
-
-```
-$ cat LEA-x.json
-{
-  "name": "Limited Edition Alpha",
-  "code": "LEA",
-  "gathererCode": "1E",
-  "magicCardsInfoCode": "al",
-  "releaseDate": "1993-08-05",
-  "border": "black",
-  "type": "core",
-  "booster": [
-    "rare",
-    "uncommon",
-    "uncommon",
-    "uncommon",
-    "common",
-    "common",
-...
-...
-(and on, and on, and on...)
-```
-
-It will be cumbersome to read through the file to understand how the JSON is
-structured. Instead, infer the schema and initialize an instance with default
-values:
-
-```
-$ cat ~/LEA-x.json | schema infer | schema init --populate-lists=false
-{
-    "booster": [
-        ""
-    ],
-    "border": "",
-    "cards": [
-        ""
-    ],
-    "code": "",
-    "gathererCode": "",
-    "magicCardsInfoCode": "",
-    "mkm_id": 0,
-    "mkm_name": "",
-    "name": "",
-    "releaseDate": "",
-    "type": ""
-}
-```
-
-Nice!
 
 # Installation
 
