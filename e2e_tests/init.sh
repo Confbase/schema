@@ -172,6 +172,120 @@ init_json_skip_ref() {
 }'
 }
 
+
+init_json_minimal() {
+    output=`printf '{}' | schema infer | schema init 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{}'
+}
+
+init_json_string() {
+    output=`printf '{"name": "Thomas"}' | schema infer | schema init 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "name": ""
+}'
+}
+
+init_json_number() {
+    output=`printf '{"age": 20}' | schema infer | schema init 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "age": 0
+}'
+}
+
+init_json_boolean() {
+    output=`printf '{"isHandsome": true}' | schema infer | schema init 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "isHandsome": false
+}'
+}
+
+init_json_null() {
+    output=`printf '{"badField": null}' | schema infer | schema init 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "badField": null
+}'
+}
+
+init_json_array() {
+    output=`printf '{"truthfulnesses": [true,false,false,true]}' | schema infer | schema init 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "truthfulnesses": [
+        false
+    ]
+}'
+}
+
+init_json_array_no_pop_lists() {
+    output=`printf '{"truthfulnesses": [true,false,false,true]}' | schema infer | schema init --populate-lists=false 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "truthfulnesses": []
+}'
+}
+
+init_json_nested_object() {
+    output=`printf '{"myObj": {"field1":1,"field2":"Finland"}}' | schema infer | schema init 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "myObj": {
+        "field1": 0,
+        "field2": ""
+    }
+}'
+}
+
+init_json_integer_and_required() {
+    output=`printf '{
+    "title": "Person",
+    "type": "object",
+    "properties": {
+        "firstName": {
+            "type": "string"
+        },
+        "age": {
+            "description": "Age in years",
+            "type": "integer",
+            "minimum": 0
+        }
+    },
+    "required": ["firstName", "age"]
+}' | schema init 2>&1`
+    status="$?"
+
+    expect_either_or='true'
+    expect_status='0'
+    expect_either='{
+    "age": 0,
+    "firstName": ""
+}'
+    expect_or='{
+    "firstName": "",
+    "age": 0
+}'
+}
+
 init_yaml_minimal() {
     output=`printf '{}' | schema infer | schema init --yaml 2>&1`
     status="$?"
@@ -593,6 +707,170 @@ init_xml_skip_ref() {
     expect='<geo/>' # clbanning/mxj has this behavior...
 }
 
+
+init_random_minimal() {
+    output=`printf '{}' | schema infer | schema init --random | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {}
+}'
+}
+
+init_random_string() {
+    output=`printf '{"name": "Thomas"}' | schema infer | schema init --random | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string"
+        }
+    }
+}'
+}
+
+init_random_number() {
+    output=`printf '{"age": 20}' | schema infer | schema init --random | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "age": {
+            "type": "number"
+        }
+    }
+}'
+}
+
+init_random_boolean() {
+    output=`printf '{"isHandsome": true}' | schema infer | schema init --random | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "isHandsome": {
+            "type": "boolean"
+        }
+    }
+}'
+}
+
+init_random_null() {
+    output=`printf '{"badField": null}' | schema infer | schema init --random | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "badField": {
+            "type": "null"
+        }
+    }
+}'
+}
+
+init_random_array() {
+    output=`printf '{"truthfulnesses": [true,false,false,true]}' | schema infer | schema init --random | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthfulnesses": {
+            "type": "array",
+            "items": {
+                "type": "boolean"
+            }
+        }
+    }
+}'
+}
+
+init_random_array_no_pop_lists() {
+    output=`printf '{"truthfulnesses": [true,false,false,true]}' | schema infer | schema init --populate-lists=false --random 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "truthfulnesses": []
+}'
+}
+
+init_random_nested_object() {
+    output=`printf '{"myObj": {"field1":1,"field2":"Finland"}}' | schema infer | schema init --random | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "myObj": {
+            "title": "",
+            "type": "object",
+            "properties": {
+                "field1": {
+                    "type": "number"
+                },
+                "field2": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}'
+}
+
+init_random_integer_and_required() {
+    output=`printf '{
+    "title": "Person",
+    "type": "object",
+    "properties": {
+        "firstName": {
+            "type": "string"
+        },
+        "age": {
+            "description": "Age in years",
+            "type": "integer",
+            "minimum": 0
+        }
+    },
+    "required": ["firstName", "age"]
+}' | schema init --random | schema infer 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "age": {
+            "type": "number"
+        },
+        "firstName": {
+            "type": "string"
+        }
+    }
+}'
+}
+
 tests=(
     "init_invalid_schema"
     "init_json_minimal"
@@ -639,4 +917,13 @@ tests=(
     "init_xml_integer_and_required"
     "init_xml_follow_ref"
     "init_xml_skip_ref"
+    "init_random_minimal"
+    "init_random_string"
+    "init_random_number"
+    "init_random_boolean"
+    "init_random_null"
+    "init_random_array"
+    "init_random_array_no_pop_lists"
+    "init_random_nested_object"
+    "init_random_integer_and_required"
 )
