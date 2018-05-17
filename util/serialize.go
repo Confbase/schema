@@ -47,7 +47,7 @@ func MuxDecode(r io.Reader) (map[string]interface{}, error) {
 
 func DemuxEncode(w io.Writer, data interface{}, outFmt string, doPretty bool) error {
 	switch outFmt {
-	case "json", "graphql":
+	case "json":
 		enc := json.NewEncoder(w)
 		if doPretty {
 			enc.SetIndent("", "    ")
@@ -78,7 +78,7 @@ func DemuxEncode(w io.Writer, data interface{}, outFmt string, doPretty bool) er
 				return err
 			}
 		}
-	case "protobuf":
+	case "protobuf", "graphql":
 		return fmt.Errorf("'%v' is not implemented yet", outFmt)
 	default:
 		return fmt.Errorf("unrecognized output format '%v'", outFmt)
