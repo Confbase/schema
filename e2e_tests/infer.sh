@@ -1089,6 +1089,183 @@ infer_toml_complicated_and_use_schema_field() {
 }'
 }
 
+infer_unrecognized_format_graphql() {
+    output=`printf '{' | schema infer --graphql 2>&1`
+    status="$?"
+
+    expect_status='1'
+    expect='error: failed to recognize input data format'
+}
+
+infer_json_minimal_graphql() {
+    output=`printf '{}' | schema infer --graphql --omit-required=false 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type Object {
+}'
+}
+
+infer_json_string_graphql() {
+    output=`printf '{"a":"b"}' | schema infer --graphql --omit-required=false 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type Object {
+    a: String!
+}'
+}
+
+infer_json_positive_integer_graphql() {
+    output=`printf '{"myNumber":12}' | schema infer --graphql --omit-required=false 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type Object {
+    myNumber: Float!
+}'
+}
+
+infer_json_negative_integer_graphql() {
+    output=`printf '{"myNumber":-12310}' | schema infer --graphql --omit-required=false 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type Object {
+    myNumber: Float!
+}'
+}
+
+infer_json_positive_float_graphql() {
+    output=`printf '{"myNumber":420.6}' | schema infer --graphql --omit-required=false 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type Object {
+    myNumber: Float!
+}'
+}
+
+infer_json_negative_float_graphql() {
+    output=`printf '{"myNumber":-1902.32249}' | schema infer --graphql --omit-required=false 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type Object {
+    myNumber: Float!
+}'
+}
+
+infer_json_zero_graphql() {
+    output=`printf '{"myNumber":0}' | schema infer --graphql --omit-required=false 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type Object {
+    myNumber: Float!
+}'
+}
+
+infer_json_null_graphql() {
+    output=`printf '{"is2004":null}' | schema infer --graphql --omit-required=false 2>&1`
+    status="$?"
+
+    expect_status='1'
+    expect=`printf "error: failed to serialize schema\ncannot infer type of null value (see key 'is2004')"`
+}
+
+infer_json_boolean_graphql() {
+    output=`printf '{"is2004":true}' | schema infer --graphql --omit-required=false 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type Object {
+    is2004: Boolean!
+}'
+}
+
+infer_json_array_of_strings_graphql() {
+    output=`printf '{"people":["bladee","thomas"]}' | schema infer --graphql --omit-required=false 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type Object {
+    people: [String!]!
+}'
+}
+
+infer_json_array_of_numbers_graphql() {
+    output=`printf '{"ages":[12.1,-1,43,-2.3,0,-0,0.0]}' | schema infer --graphql --omit-required=false 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type Object {
+    ages: [Float!]!
+}'
+}
+
+infer_json_array_of_booleans_graphql() {
+    output=`printf '{"truthinesses":[true,false,false]}' | schema infer --graphql --omit-required=false 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type Object {
+    truthinesses: [Boolean!]!
+}'
+}
+
+infer_json_array_of_objects_graphql() {
+    output=`printf '{"people":[{"name":"thomas"},{"name":"gordon"}]}' | schema infer --graphql --omit-required=false 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type People {
+    name: String!
+}
+
+type Object {
+    people: [People!]!
+}'
+}
+
+infer_json_array_of_array_objects_graphql() {
+    output=`printf '{"people":[[{"name":"thomas"},{"name":"gordon"}]]}' | schema infer --graphql --omit-required=false 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type People {
+    name: String!
+}
+
+type Object {
+    people: [[People!]]!
+}'
+}
+
+infer_json_array_of_objects_with_multiple_fields_graphql() {
+    output=`printf '{"people":[{"name":"Thomas","age":20}]}' | schema infer --graphql --omit-required=false 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect_either_or='true'
+    expect_either='type People {
+    age: Float!
+    name: String!
+}
+
+type Object {
+    people: [People!]!
+}'
+    expect_or='type People {
+    name: String!
+    age: Float!
+}
+
+type Object {
+    people: [People!]!
+}'
+}
+
 tests=(
     "infer_unrecognized_format"
     "infer_json_minimal"
@@ -1136,4 +1313,20 @@ tests=(
     "infer_toml_array_of_tables"
     "infer_toml_array_of_tables_with_multiple_fields"
     "infer_toml_complicated_and_use_schema_field"
+    "infer_unrecognized_format_graphql"
+    "infer_json_minimal_graphql"
+    "infer_json_string_graphql"
+    "infer_json_positive_integer_graphql"
+    "infer_json_negative_integer_graphql"
+    "infer_json_positive_float_graphql"
+    "infer_json_negative_float_graphql"
+    "infer_json_zero_graphql"
+    "infer_json_null_graphql"
+    "infer_json_boolean_graphql"
+    "infer_json_array_of_strings_graphql"
+    "infer_json_array_of_numbers_graphql"
+    "infer_json_array_of_booleans_graphql"
+    "infer_json_array_of_objects_graphql"
+    "infer_json_array_of_array_objects_graphql"
+    "infer_json_array_of_objects_with_multiple_fields_graphql"
 )

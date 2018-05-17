@@ -289,7 +289,7 @@ All values are interpreted as strings.
 ### How do I initialize empty lists?
 
 By default, `schema init` will initialize one element of each list. To
-iniitialize empty lists instead, use the flag `--populate-lists=false`.
+initialize empty lists instead, use the flag `--populate-lists=false`.
 Example:
 
 

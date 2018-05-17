@@ -3,6 +3,8 @@ package jsonsch
 import (
 	"encoding/json"
 	"io"
+
+	"github.com/Confbase/schema/graphqlsch"
 )
 
 func SerializeSchema(s Schema, w io.Writer, doPretty bool) error {
@@ -16,30 +18,10 @@ func SerializeSchema(s Schema, w io.Writer, doPretty bool) error {
 	return nil
 }
 
-/*
-func SerializeInstance(inst map[string]interface{}, w io.Writer, outFmt string, doPretty bool) error {
-	switch outFmt {
-	case "json":
-		enc := json.NewEncoder(w)
-		if doPretty {
-			enc.SetIndent("", "    ")
-		}
-		if err := enc.Encode(&inst); err != nil {
-			return err
-		}
-	case "yaml":
-		if err := yaml.NewEncoder(w).Encode(&inst); err != nil {
-			return err
-		}
-	case "toml":
-		if err := toml.NewEncoder(w).Encode(&inst); err != nil {
-			return err
-		}
-	case "xml", "protobuf", "graphql":
-		return fmt.Errorf("'%v' is not implemented yet", outFmt)
-	default:
-		return fmt.Errorf("unrecognized output format '%v'", outFmt)
+func SerializeGraphQL(s Schema, w io.Writer) error {
+	gqls, err := ToGraphQLSchema(s)
+	if err != nil {
+		return err
 	}
-	return nil
+	return graphqlsch.SerializeSchema(gqls, w)
 }
-*/
