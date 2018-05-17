@@ -11,6 +11,7 @@ type Config struct {
 	DoPretty   bool
 	DoPopLists bool
 	DoSkipRefs bool
+	DoRandom   bool
 }
 
 func (cfg *Config) OutFmt() string {
