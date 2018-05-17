@@ -124,12 +124,41 @@ Run `go get -u github.com/Confbase/schema` to build from source.
 
 # FAQ
 
+* [How do infer I GraphQL schemas from data with null values?](#how-do-i-infer-graphql-schemas-from-data-with-null-values)
 * [How do I make fields required in inferred schemas?](#how-do-i-make-fields-required-in-inferred-schemas)
 * [How do I generate compact schemas?](#how-do-i-generate-compact-schemas)
 * [Why am I getting the error 'toml: cannot marshal nil interface {}'?](#why-am-i-getting-the-error-toml-cannot-marshal-nil-interface-)
 * [What is the behavior of inferring and translating XML?](#what-is-the-behavior-of-inferring-and-translating-xml)
 * [How do I initialize empty lists?](#how-can-i-initialize-empty-lists)
 * [Where is the $schema field in inferred schemas?](#where-is-the-schema-field-in-inferred-schemas)
+
+### How do I infer GraphQL schemas from data with null values?
+
+There are a few different approaches which solve this problem.
+
+The most laborious---but also the safest---approach is to manually replace
+null values with non-null values before inferring the schema.
+
+There are two approaches which are quicker, but more prone to error.
+
+If your data has one field per line, you could remove all lines with the string
+"null", then manually add the fields which were omitted. *Warning*: This is
+prone to errors. Specifically, in addition to all fields with null values being
+omitted, all fields whose names contain the string "null" will be omitted as
+well.
+
+```
+$ cat my_data.json | grep -v 'null' | schema infer --graphql
+```
+
+Another approach is to replace the string "null" with the empty string "". This
+means the fields with null values will now have the type `String` in the
+inferred schema. *Warning*: Fields whose names contain the string "null" will
+be clobbered.
+
+```
+$ cat my_data.yaml | sed 's/null/""/g' | schema infer --graphql
+```
 
 ### How do I make fields required in inferred schemas?
 
