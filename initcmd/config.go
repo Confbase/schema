@@ -1,5 +1,10 @@
 package initcmd
 
+import (
+	"math/rand"
+	"time"
+)
+
 type Config struct {
 	SchemaPath string
 	DoJson     bool
@@ -11,9 +16,23 @@ type Config struct {
 	DoPretty   bool
 	DoPopLists bool
 	DoSkipRefs bool
+	DoRandom   bool
 }
 
 func (cfg *Config) OutFmt() string {
+	if cfg.DoRandom {
+		schemaTypes := []string{
+			"json",
+			"yaml",
+			"toml",
+			"xml",
+			"protobuf",
+			"graphql",
+		}
+		rand.Seed(time.Now().Unix())
+
+		return schemaTypes[rand.Intn(len(schemaTypes))]
+	}
 	if cfg.DoJson {
 		return "json"
 	}
