@@ -22,7 +22,7 @@ Common uses cases:
 GraphQL schemas, protobuf schemas, YAML, TOML, and XML:
 
 ```
-$ curl https://example.com/some_endpoint | schema infer --graphql
+$ curl http://piedpiper.tld/some_endpoint | schema infer --graphql
 type People {
     age: Float!
     name: String!
@@ -36,7 +36,7 @@ type Object {
 * Omit `--graphql` to get [JSON Schema](https://json-schema.org):
 
 ```
-$ curl https://example.com/some_endpoint | schema infer
+$ curl http://piedpiper.tld/some_endpoint | schema infer
 {
     "title": "",
     "type": "object",
