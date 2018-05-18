@@ -31,13 +31,19 @@ func Infer(r io.Reader, w io.Writer, cfg Config) error {
 	ex := example.New(data)
 	js, err := jsonsch.FromExample(ex, cfg.DoOmitRequired, cfg.DoMakeRequired)
 	if err != nil {
-		return fmt.Errorf("failed to infer schema :/\n%v", err)
+		return fmt.Errorf("failed to infer schema\n%v", err)
 	}
 
 	js.SetSchemaField(cfg.SchemaField)
 
-	if err := jsonsch.SerializeSchema(js, w, cfg.DoPretty); err != nil {
-		return fmt.Errorf("failed to serialize schema\n%v", err)
+	if cfg.DoGraphQL {
+		if err := jsonsch.SerializeGraphQL(js, w); err != nil {
+			return fmt.Errorf("failed to serialize schema\n%v", err)
+		}
+	} else {
+		if err := jsonsch.SerializeSchema(js, w, cfg.DoPretty); err != nil {
+			return fmt.Errorf("failed to serialize schema\n%v", err)
+		}
 	}
 
 	return nil

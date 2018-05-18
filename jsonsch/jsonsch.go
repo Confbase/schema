@@ -1,17 +1,10 @@
 package jsonsch
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
 
-type Type string
-
-const (
-	Object  Type = "object"
-	Boolean Type = "boolean"
-	Array   Type = "array"
-	Number  Type = "number"
-	Integer Type = "integer"
-	String  Type = "string"
-	Null    Type = "null"
+	"github.com/Confbase/schema/graphqlsch"
 )
 
 type Schema interface {
@@ -30,65 +23,163 @@ type Schema interface {
 	SetRequired([]string)
 }
 
-/*
-func includeRequired(s *Schema) interface{} {
-	st := reflect.TypeOf(*s)
-	fs := []reflect.StructField{}
-	for i := 0; i < st.NumField(); i++ {
-		fs = append(fs, st.Field(i))
-		if fs[i].Name == "Required" {
-			fs[i].Tag = reflect.StructTag(`json:"required"`)
+func ToGraphQLTypes(rootSchema Schema, rootName string) ([]graphqlsch.Type, error) {
+	types := make([]graphqlsch.Type, 0)
+	fields := make([]graphqlsch.Field, 0)
+	for k, inter := range rootSchema.GetProperties() {
+		switch value := inter.(type) {
+		case Primitive:
+			newFields, err := handlePrimitive(k, value, fields)
+			if err != nil {
+				return nil, err
+			}
+			fields = newFields
+		case *ArraySchema:
+			params := handleArraySchemaParams{
+				Key:    k,
+				AS:     value,
+				Fields: fields,
+				Types:  types,
+			}
+			newFields, newTypes, err := handleArraySchema(params)
+			if err != nil {
+				return nil, err
+			}
+			fields = newFields
+			types = newTypes
+		case Schema:
+			newFields, newTypes, err := handleSchema(handleSchemaParams{
+				Key:         k,
+				ChildSchema: value,
+				Fields:      fields,
+				Types:       types,
+			})
+			if err != nil {
+				return nil, err
+			}
+			fields = newFields
+			types = newTypes
+		default:
+			return nil, fmt.Errorf("key '%v' has unexpected type %T", k, value)
 		}
 	}
-	st2 := reflect.StructOf(fs)
-	v := reflect.ValueOf(*s)
-	v2 := v.Convert(st2)
-	return v2.Interface()
-}
-*/
-
-type Primitive struct {
-	Type        Type   `json:"type"`
-	Description string `json:"description,omitempty"`
+	types = append(types, graphqlsch.NewType(rootName, fields))
+	return types, nil
 }
 
-func NewNull() Primitive {
-	return Primitive{Type: Null}
-}
-
-func NewBoolean() Primitive {
-	return Primitive{Type: Boolean}
-}
-
-func NewNumber() Primitive {
-	return Primitive{Type: Number}
-}
-
-func NewString() Primitive {
-	return Primitive{Type: String}
-}
-
-type ArraySchema struct {
-	Type  Type        `json:"type"`
-	Items interface{} `json:"items"`
-}
-
-func NewArray(data []interface{}, doOmitRequired, doMakeRequired bool) (*ArraySchema, error) {
-	// TODO: incoporate entire array depending on mode
-	// E.g.,
-	// - use the first element to infer array type
-	// - use conjuction of all elements to infer array type
-	// - verify all elements are same type, otherwise fail
-	// - have some default value for when arrays are empty
-	if len(data) == 0 {
-		return nil, fmt.Errorf("cannot infer type of empty array")
+func ToGraphQLSchema(s Schema) (*graphqlsch.Schema, error) {
+	title := s.GetTitle()
+	if title == "" {
+		title = "Object"
 	}
-
-	a := ArraySchema{Type: Array}
-
-	if err := buildSchema(data[0], &a.Items, doOmitRequired, doMakeRequired); err != nil {
+	types, err := ToGraphQLTypes(s, title)
+	if err != nil {
 		return nil, err
 	}
+	return graphqlsch.New(types), nil
+}
 
-	return &a, nil
+func handlePrimitive(key string, prim Primitive, fields []graphqlsch.Field) ([]graphqlsch.Field, error) {
+	f := graphqlsch.Field{
+		Name:       key,
+		IsNullable: false,
+		IsArray:    false,
+	}
+	switch prim.Type {
+	case Boolean:
+		f.Type = graphqlsch.Boolean
+	case String:
+		f.Type = graphqlsch.String
+	case Number:
+		f.Type = graphqlsch.Float
+	case Null:
+		return nil, fmt.Errorf("cannot infer type of null value (see key '%v')", key)
+	default:
+		return nil, fmt.Errorf("key '%v' has unexpected 'type' field value '%v'", key, prim.Type)
+	}
+	return append(fields, f), nil
+}
+
+type handleArraySchemaParams struct {
+	Key    string
+	AS     *ArraySchema
+	Fields []graphqlsch.Field
+	Types  []graphqlsch.Type
+}
+
+func handleArraySchema(params handleArraySchemaParams) ([]graphqlsch.Field, []graphqlsch.Type, error) {
+	f := graphqlsch.Field{
+		Name:       params.Key,
+		IsNullable: false,
+		IsArray:    true,
+		ArrayDim:   1,
+	}
+
+	// unwrap multi-dimensional arrays
+	item := params.AS.Items
+	for {
+		unwrapped, ok := item.(*ArraySchema)
+		if !ok {
+			break
+		}
+		item = unwrapped.Items
+		f.ArrayDim++
+	}
+
+	// TODO: ensure all items in array are same type
+	switch value := item.(type) {
+	case Primitive:
+		switch value.Type {
+		case Boolean:
+			f.Type = graphqlsch.Boolean
+		case String:
+			f.Type = graphqlsch.String
+		case Number:
+			f.Type = graphqlsch.Float
+		case Null:
+			return nil, nil, fmt.Errorf("cannot infer type of null value (in array at key '%v')", params.Key)
+		default:
+			return nil, nil, fmt.Errorf("array (key '%v') has unexpected type '%v'", params.Key, value.Type)
+		}
+	case Schema:
+		_, newTypes, err := handleSchema(handleSchemaParams{
+			Key:         params.Key,
+			ChildSchema: value,
+			Fields:      make([]graphqlsch.Field, 0),
+			Types:       params.Types,
+		})
+		if err != nil {
+			return nil, nil, err
+		}
+		params.Types = newTypes
+		f.Type = graphqlsch.PrimitiveType(strings.Title(params.Key))
+	default:
+		return nil, nil, fmt.Errorf("key '%v' has unexpected type %T", params.Key, value)
+	}
+
+	return append(params.Fields, f), params.Types, nil
+}
+
+type handleSchemaParams struct {
+	Key         string
+	ChildSchema Schema
+	Fields      []graphqlsch.Field
+	Types       []graphqlsch.Type
+}
+
+func handleSchema(params handleSchemaParams) ([]graphqlsch.Field, []graphqlsch.Type, error) {
+	childTypes, err := ToGraphQLTypes(params.ChildSchema, strings.Title(params.Key))
+	if err != nil {
+		return nil, nil, err
+	}
+	for _, childT := range childTypes {
+		params.Types = append(params.Types, childT)
+	}
+	f := graphqlsch.Field{
+		Name:       params.Key,
+		Type:       graphqlsch.PrimitiveType(strings.Title(params.Key)),
+		IsNullable: false,
+		IsArray:    false,
+	}
+	return append(params.Fields, f), params.Types, nil
 }

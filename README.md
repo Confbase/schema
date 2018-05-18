@@ -18,20 +18,43 @@
 
 Common uses cases:
 
-* Infer [JSON Schema](https://json-schema.org) from arbirtrary JSON,
+* Infer [GraphQL](https://graphql.org) schemas from arbirtrary JSON,
 GraphQL schemas, protobuf schemas, YAML, TOML, and XML:
 
 ```
-$ curl https://example.com/json_endpoint | schema infer
+$ curl https://example.com/some_endpoint | schema infer --graphql
+type People {
+    age: Float!
+    name: String!
+}
+
+type Object {
+    people: [People!]!
+}
+```
+
+* Omit `--graphql` to get [JSON Schema](https://json-schema.org):
+
+```
+$ curl https://example.com/some_endpoint | schema infer
 {
     "title": "",
     "type": "object",
     "properties": {
-        "name": {
-            "type": "string"
-        },
-        "age": {
-            "type": "number"
+        "people": {
+            "type": "array",
+            "items": {
+                "title": "",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "age": {
+                        "type": "number"
+                    }
+                }
+            }
         }
     }
 }
@@ -93,61 +116,6 @@ $ cat my_schema | schema init --random
 }
 ```
 
-* Show the structure of a large file:
-
-Suppose you have a massive JSON object and you want to see the structure of it,
-without all the values. Infer the schema and then initialize an instance.
-Example:
-
-```
-$ cat LEA-x.json
-{
-  "name": "Limited Edition Alpha",
-  "code": "LEA",
-  "gathererCode": "1E",
-  "magicCardsInfoCode": "al",
-  "releaseDate": "1993-08-05",
-  "border": "black",
-  "type": "core",
-  "booster": [
-    "rare",
-    "uncommon",
-    "uncommon",
-    "uncommon",
-    "common",
-    "common",
-...
-...
-(and on, and on, and on...)
-```
-
-It will be cumbersome to read through the file to understand how the JSON is
-structured. Instead, infer the schema and initialize an instance with default
-values:
-
-```
-$ cat ~/LEA-x.json | schema infer | schema init --populate-lists=false
-{
-    "booster": [
-        ""
-    ],
-    "border": "",
-    "cards": [
-        ""
-    ],
-    "code": "",
-    "gathererCode": "",
-    "magicCardsInfoCode": "",
-    "mkm_id": 0,
-    "mkm_name": "",
-    "name": "",
-    "releaseDate": "",
-    "type": ""
-}
-```
-
-Nice!
-
 # Installation
 
 See the Releases page for static binaries.
@@ -156,12 +124,41 @@ Run `go get -u github.com/Confbase/schema` to build from source.
 
 # FAQ
 
+* [How do infer I GraphQL schemas from data with null values?](#how-do-i-infer-graphql-schemas-from-data-with-null-values)
 * [How do I make fields required in inferred schemas?](#how-do-i-make-fields-required-in-inferred-schemas)
 * [How do I generate compact schemas?](#how-do-i-generate-compact-schemas)
 * [Why am I getting the error 'toml: cannot marshal nil interface {}'?](#why-am-i-getting-the-error-toml-cannot-marshal-nil-interface-)
 * [What is the behavior of inferring and translating XML?](#what-is-the-behavior-of-inferring-and-translating-xml)
 * [How do I initialize empty lists?](#how-can-i-initialize-empty-lists)
 * [Where is the $schema field in inferred schemas?](#where-is-the-schema-field-in-inferred-schemas)
+
+### How do I infer GraphQL schemas from data with null values?
+
+There are a few different approaches which solve this problem.
+
+The most laborious---but also the safest---approach is to manually replace
+null values with non-null values before inferring the schema.
+
+There are two approaches which are quicker, but more prone to error.
+
+If your data has one field per line, you could remove all lines with the string
+"null", then manually add the fields which were omitted. *Warning*: This is
+prone to errors. Specifically, in addition to all fields with null values being
+omitted, all fields whose names contain the string "null" will be omitted as
+well.
+
+```
+$ cat my_data.json | grep -v 'null' | schema infer --graphql
+```
+
+Another approach is to replace the string "null" with the empty string "". This
+means the fields with null values will now have the type `String` in the
+inferred schema. *Warning*: Fields whose names contain the string "null" will
+be clobbered.
+
+```
+$ cat my_data.yaml | sed 's/null/""/g' | schema infer --graphql
+```
 
 ### How do I make fields required in inferred schemas?
 
@@ -289,7 +286,7 @@ All values are interpreted as strings.
 ### How do I initialize empty lists?
 
 By default, `schema init` will initialize one element of each list. To
-iniitialize empty lists instead, use the flag `--populate-lists=false`.
+initialize empty lists instead, use the flag `--populate-lists=false`.
 Example:
 
 

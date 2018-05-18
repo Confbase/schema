@@ -24,8 +24,13 @@ var inferCfg infer.Config
 
 var inferCmd = &cobra.Command{
 	Use:   "infer [path]",
-	Short: "Infer schema from example data and output schema file",
-	Long: `Infer schema from example data and output schema file.
+	Short: "Infer and output schemas from example data",
+	Long: `Infer and output schemas from example data.
+
+By default, JSON schema (see https://json-schema.org) is output.
+
+GraphQL schemas can be output with the --graphql flag. The --omit-required
+and --schema-field flags do nothing when used with the --graphql flag.
 
 If called with no arguments, 'schema infer' reads from stdin and writes the
 inferred schema to stdout.
@@ -49,6 +54,7 @@ func init() {
 	inferCmd.Flags().BoolVarP(&inferCfg.DoPretty, "pretty", "p", true, "pretty-print the output")
 	inferCmd.Flags().BoolVarP(&inferCfg.DoMakeRequired, "make-required", "r", false, "make all fields required")
 	inferCmd.Flags().BoolVarP(&inferCfg.DoOmitRequired, "omit-required", "", true, "omit 'required' field if it's empty")
+	inferCmd.Flags().BoolVarP(&inferCfg.DoGraphQL, "graphql", "g", false, "output GraphQL schemas")
 	inferCmd.Flags().StringVarP(&inferCfg.SchemaField, "schema-field", "s", "", "specifies the value of the $schema field")
 	RootCmd.AddCommand(inferCmd)
 }
