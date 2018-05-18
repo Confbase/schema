@@ -1,8 +1,10 @@
 package infer
 
 import (
+	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 
 	"github.com/Confbase/schema/example"
@@ -10,15 +12,33 @@ import (
 	"github.com/Confbase/schema/util"
 )
 
-func InferEntry(cfg Config, args []string) {
-	if len(args) == 0 {
+func InferEntry(cfg Config, targets []string) {
+	if len(targets) == 0 {
 		if err := Infer(os.Stdin, os.Stdout, cfg); err != nil {
 			fmt.Fprintf(os.Stderr, "error: %v\n", err)
 			os.Exit(1)
 		}
-	} else {
-		fmt.Fprintf(os.Stderr, "error: not implemented yet\n")
+		return
+	}
+
+	buf, err := ioutil.ReadAll(os.Stdin)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: failed to read from stdin\n%v", err)
 		os.Exit(1)
+	}
+
+	for _, t := range targets {
+		f, err := os.OpenFile(t, os.O_RDWR|os.O_CREATE, 0666)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: failed to open '%v'\n%v\n", t, err)
+			os.Exit(1)
+		}
+		defer f.Close()
+
+		if err := Infer(bytes.NewReader(buf), f, cfg); err != nil {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			os.Exit(1)
+		}
 	}
 }
 
