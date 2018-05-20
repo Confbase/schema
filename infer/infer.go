@@ -49,7 +49,12 @@ func Infer(r io.Reader, w io.Writer, cfg Config) error {
 	}
 
 	ex := example.New(data)
-	js, err := jsonsch.FromExample(ex, cfg.DoOmitRequired, cfg.DoMakeRequired)
+	params := jsonsch.FromExampleParams{
+		DoOmitReq:     cfg.DoOmitReq,
+		DoMakeReq:     cfg.DoMakeReq,
+		EmptyArraysAs: cfg.EmptyArraysAs,
+	}
+	js, err := jsonsch.FromExample(ex, &params)
 	if err != nil {
 		return fmt.Errorf("failed to infer schema\n%v", err)
 	}

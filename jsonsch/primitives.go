@@ -40,20 +40,40 @@ type ArraySchema struct {
 	Items interface{} `json:"items"`
 }
 
-func NewArray(data []interface{}, doOmitRequired, doMakeRequired bool) (*ArraySchema, error) {
+func NewArray(data []interface{}, params *FromExampleParams) (*ArraySchema, error) {
 	// TODO: incoporate entire array depending on mode
 	// E.g.,
 	// - use the first element to infer array type
 	// - use conjuction of all elements to infer array type
 	// - verify all elements are same type, otherwise fail
-	// - have some default value for when arrays are empty
+
+	var elem interface{}
+
 	if len(data) == 0 {
-		return nil, fmt.Errorf("cannot infer type of empty array")
+		if params.EmptyArraysAs == "" {
+			return nil, fmt.Errorf("cannot infer type of empty array; consider using --empty-arrays-as")
+		}
+		switch params.EmptyArraysAs {
+		case "null", "nil":
+			elem = nil
+		case "bool", "boolean":
+			elem = false
+		case "string", "str":
+			elem = ""
+		case "number", "float":
+			elem = 0.0
+		case "object":
+			elem = make(map[string]interface{})
+		default:
+			return nil, fmt.Errorf("invalid --empty-arrays-as value '%v'", params.EmptyArraysAs)
+		}
+	} else {
+		elem = data[0]
 	}
 
 	a := ArraySchema{Type: Array}
 
-	if err := buildSchema(data[0], &a.Items, doOmitRequired, doMakeRequired); err != nil {
+	if err := buildSchema(elem, &a.Items, params); err != nil {
 		return nil, err
 	}
 

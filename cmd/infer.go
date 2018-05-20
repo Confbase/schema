@@ -1,4 +1,4 @@
-// Copyright © 2018 Thomas Fischer <thomas@confbase.com>
+// Copyright © 2018 Confbase
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import (
 var inferCfg infer.Config
 
 var inferCmd = &cobra.Command{
-	Use:   "infer [path]",
+	Use:   "infer [output path]",
 	Short: "Infer and output schemas from example data",
 	Long: `Infer and output schemas from example data.
 
@@ -52,9 +52,10 @@ See the man pages for idioms, examples, and more information.`,
 
 func init() {
 	inferCmd.Flags().BoolVarP(&inferCfg.DoPretty, "pretty", "p", true, "pretty-print the output")
-	inferCmd.Flags().BoolVarP(&inferCfg.DoMakeRequired, "make-required", "r", false, "make all fields required")
-	inferCmd.Flags().BoolVarP(&inferCfg.DoOmitRequired, "omit-required", "", true, "omit 'required' field if it's empty")
+	inferCmd.Flags().BoolVarP(&inferCfg.DoMakeReq, "make-required", "r", false, "make all fields required")
+	inferCmd.Flags().BoolVarP(&inferCfg.DoOmitReq, "omit-required", "", true, "omit 'required' field if it's empty")
 	inferCmd.Flags().BoolVarP(&inferCfg.DoGraphQL, "graphql", "g", false, "output GraphQL schemas")
 	inferCmd.Flags().StringVarP(&inferCfg.SchemaField, "schema-field", "s", "", "specifies the value of the $schema field")
+	inferCmd.Flags().StringVarP(&inferCfg.EmptyArraysAs, "empty-arrays-as", "", "", "specifies the element type of empty arrays")
 	RootCmd.AddCommand(inferCmd)
 }
