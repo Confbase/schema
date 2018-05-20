@@ -1,4 +1,4 @@
-// Copyright © 2018 Thomas Fischer
+// Copyright © 2018 Confbase
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,7 @@ var RootCmd = &cobra.Command{
 2. init      : Initialize an instance of a schema with default values
 3. translate : Translate data from one format to another
 
-Supported formats: JSON, YAML, TOML, XML, GraphQL schema, protobuf schema
+Supported formats: JSON, YAML, TOML, XML, GraphQL schema, JSON Schema
 
 See the man pages for idioms, examples, and more information.`,
 }

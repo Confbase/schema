@@ -34,7 +34,9 @@ Multiple output paths may be specfied. If none are specified, translated data
 is written to stdout.
 
 If more than one of the (json|yaml|toml|xml|protobuf|graphql) flags are set,
-behavior is undefined.`,
+behavior is undefined.
+
+See man pages`,
 	Run: func(cmd *cobra.Command, args []string) {
 		translate.TranslateEntry(translateCfg, args)
 	},
@@ -47,7 +49,6 @@ func init() {
 	translateCmd.Flags().BoolVarP(&translateCfg.DoToml, "toml", "", false, "initialize as TOML")
 	translateCmd.Flags().BoolVarP(&translateCfg.DoXml, "xml", "", false, "initialize as XML")
 	translateCmd.Flags().BoolVarP(&translateCfg.DoProtobuf, "protobuf", "", false, "initialize as protocol buffer")
-	translateCmd.Flags().BoolVarP(&translateCfg.DoGraphQL, "graphql", "", false, "initialize as GraphQL instance")
 	translateCmd.Flags().BoolVarP(&translateCfg.DoPretty, "pretty", "", true, "pretty-print the output")
 	RootCmd.AddCommand(translateCmd)
 }
