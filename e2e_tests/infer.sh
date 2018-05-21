@@ -1921,7 +1921,7 @@ infer_json_empty_array_as_invalid_graphql() {
 
     expect_status='1'
     expect='error: failed to infer schema
-invalid --empty-arrays-as value "'"'sanguine"'"
+invalid --empty-arrays-as value '"'"'sanguine'"'"
 }
 
 tests=(
