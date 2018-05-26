@@ -2,7 +2,9 @@ package jsonsch
 
 import (
 	"fmt"
+	"math/rand"
 	"reflect"
+	"time"
 )
 
 // InitSchema is the only exposed method in this file
@@ -12,7 +14,7 @@ import (
 // InitSchema assumes all $ref fields are already either
 // 1) resolved and replaced by a network request
 // 2) replaced by an empty object
-func InitSchema(s Schema, doPopLists bool) (map[string]interface{}, error) {
+func InitSchema(s Schema, doPopLists bool, doRandom bool) (map[string]interface{}, error) {
 	data := make(map[string]interface{})
 	for key, value := range s.GetProperties() {
 
@@ -21,8 +23,14 @@ func InitSchema(s Schema, doPopLists bool) (map[string]interface{}, error) {
 			return nil, err
 		}
 
-		if err := storeTuple(tup, data, key, doPopLists); err != nil {
-			return nil, err
+		if doRandom {
+			if err := storeRandomTuple(tup, data, key, doPopLists); err != nil {
+				return nil, err
+			}
+		} else {
+			if err := storeTuple(tup, data, key, doPopLists); err != nil {
+				return nil, err
+			}
 		}
 	}
 	return data, nil
@@ -68,7 +76,7 @@ func storeTuple(tup tuple, dstMap map[string]interface{}, key string, doPopLists
 		if err != nil {
 			return err
 		}
-		childInst, err := InitSchema(childSchema, doPopLists)
+		childInst, err := InitSchema(childSchema, doPopLists, false)
 		if err != nil {
 			return err
 		}
@@ -120,7 +128,125 @@ func appendTuple(tup tuple, dstSlice []interface{}, key string) ([]interface{}, 
 		if err != nil {
 			return nil, err
 		}
-		childInst, err := InitSchema(childSchema, true)
+		childInst, err := InitSchema(childSchema, true, false)
+		if err != nil {
+			return nil, err
+		}
+		elem = childInst
+
+	case Array:
+		elem = make([]interface{}, 0)
+		elemSchema, ok := tup.Data["items"]
+		if !ok {
+			return nil, fmt.Errorf("key '%v' has type 'Array' but no 'items' field", key)
+		}
+		childTup, err := prop2Tuple(elemSchema, fmt.Sprintf("%v.items", key))
+		if err != nil {
+			return nil, err
+		}
+		childSlice, ok := elem.([]interface{})
+		if !ok {
+			return nil, fmt.Errorf("type assertion failed in Array case")
+		}
+		newSlice, err := appendTuple(childTup, childSlice, key)
+		if err != nil {
+			return nil, err
+		}
+		elem = newSlice
+
+	default:
+		return nil, fmt.Errorf("element of array at key '%v' has unrecognized 'type' field '%v'", key, tup.Type)
+	}
+	return append(dstSlice, elem), nil
+}
+
+func generateRandomString(length int) string {
+	rand.Seed(time.Now().Unix())
+
+	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+	randomString := make([]rune, length%64)
+	for i := range randomString {
+		randomString[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(randomString)
+}
+
+func storeRandomTuple(tup tuple, dstMap map[string]interface{}, key string, doPopLists bool) error {
+	rand.Seed(time.Now().Unix())
+
+	switch tup.Type {
+
+	case Null:
+		dstMap[key] = nil
+	case String:
+		dstMap[key] = generateRandomString(rand.Int())
+	case Boolean:
+		dstMap[key] = rand.Intn(2) != 0
+	case Integer, Number:
+		dstMap[key] = rand.Int()
+
+	case Object:
+		childSchema, err := FromSchema(tup.Data, false, true)
+		if err != nil {
+			return err
+		}
+		childInst, err := InitSchema(childSchema, doPopLists, true)
+		if err != nil {
+			return err
+		}
+		dstMap[key] = childInst
+
+	case Array:
+		dstMap[key] = make([]interface{}, 0)
+		if doPopLists {
+			elemSchema, ok := tup.Data["items"]
+			if !ok {
+				return fmt.Errorf("key '%v' has type 'Array' but no 'items' field", key)
+			}
+			childTup, err := prop2Tuple(elemSchema, fmt.Sprintf("%v.items", key))
+			if err != nil {
+				return err
+			}
+			dstSlice, ok := dstMap[key].([]interface{})
+			if !ok {
+				return fmt.Errorf("type assertion failed in Array case")
+			}
+			newSlice, err := appendTuple(childTup, dstSlice, key)
+			if err != nil {
+				return err
+			}
+			dstMap[key] = newSlice
+		}
+
+	default:
+		return fmt.Errorf("key '%v' has unrecognized 'type' field '%v'", key, tup.Type)
+	}
+	return nil
+}
+
+func appendRandomTuple(tup tuple, dstSlice []interface{}, key string) ([]interface{}, error) {
+	var elem interface{}
+
+	rand.Seed(time.Now().Unix())
+
+	switch tup.Type {
+
+	case Null:
+		elem = nil
+	case String:
+		elem = generateRandomString(rand.Int())
+	case Boolean:
+		elem = rand.Intn(2) != 0
+	case Integer, Number:
+		elem = rand.Int()
+
+	case Object:
+		childSchema, err := FromSchema(tup.Data, false, true)
+		if err != nil {
+			return nil, err
+		}
+		childInst, err := InitSchema(childSchema, true, true)
 		if err != nil {
 			return nil, err
 		}
