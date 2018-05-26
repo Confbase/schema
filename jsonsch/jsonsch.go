@@ -23,13 +23,13 @@ type Schema interface {
 	SetRequired([]string)
 }
 
-func ToGraphQLTypes(rootSchema Schema, rootName string, nullAs string) ([]graphqlsch.Type, error) {
+func ToGraphQLTypes(rootSchema Schema, rootName string) ([]graphqlsch.Type, error) {
 	types := make([]graphqlsch.Type, 0)
 	fields := make([]graphqlsch.Field, 0)
 	for k, inter := range rootSchema.GetProperties() {
 		switch value := inter.(type) {
 		case Primitive:
-			newFields, err := handlePrimitive(k, value, fields, nullAs)
+			newFields, err := handlePrimitive(k, value, fields)
 			if err != nil {
 				return nil, err
 			}
@@ -41,7 +41,7 @@ func ToGraphQLTypes(rootSchema Schema, rootName string, nullAs string) ([]graphq
 				Fields: fields,
 				Types:  types,
 			}
-			newFields, newTypes, err := handleArraySchema(params, nullAs)
+			newFields, newTypes, err := handleArraySchema(params)
 			if err != nil {
 				return nil, err
 			}
@@ -53,7 +53,7 @@ func ToGraphQLTypes(rootSchema Schema, rootName string, nullAs string) ([]graphq
 				ChildSchema: value,
 				Fields:      fields,
 				Types:       types,
-			}, nullAs)
+			})
 			if err != nil {
 				return nil, err
 			}
@@ -67,31 +67,19 @@ func ToGraphQLTypes(rootSchema Schema, rootName string, nullAs string) ([]graphq
 	return types, nil
 }
 
-func ToGraphQLSchema(s Schema, nullAs string) (*graphqlsch.Schema, error) {
+func ToGraphQLSchema(s Schema) (*graphqlsch.Schema, error) {
 	title := s.GetTitle()
 	if title == "" {
 		title = "Object"
 	}
-	types, err := ToGraphQLTypes(s, title, nullAs)
+	types, err := ToGraphQLTypes(s, title)
 	if err != nil {
 		return nil, err
 	}
 	return graphqlsch.New(types), nil
 }
 
-func resolveNullAs(nullType string) graphqlsch.PrimitiveType {
-	switch nullType {
-	case "bool":
-		return graphqlsch.Boolean
-	case "string":
-		return graphqlsch.String
-	case "number", "float":
-		return graphqlsch.Float
-	}
-	return graphqlsch.ID
-}
-
-func handlePrimitive(key string, prim Primitive, fields []graphqlsch.Field, nullAs string) ([]graphqlsch.Field, error) {
+func handlePrimitive(key string, prim Primitive, fields []graphqlsch.Field) ([]graphqlsch.Field, error) {
 	f := graphqlsch.Field{
 		Name:       key,
 		IsNullable: false,
@@ -105,11 +93,7 @@ func handlePrimitive(key string, prim Primitive, fields []graphqlsch.Field, null
 	case Number:
 		f.Type = graphqlsch.Float
 	case Null:
-		if nullAs == "" {
-			return nil, fmt.Errorf("cannot infer type of null value (see key '%v')", key)
-		} else {
-			f.Type = resolveNullAs(nullAs)
-		}
+		return nil, fmt.Errorf("cannot infer type of null value (see key '%v')", key)
 	default:
 		return nil, fmt.Errorf("key '%v' has unexpected 'type' field value '%v'", key, prim.Type)
 	}
@@ -123,7 +107,7 @@ type handleArraySchemaParams struct {
 	Types  []graphqlsch.Type
 }
 
-func handleArraySchema(params handleArraySchemaParams, nullAs string) ([]graphqlsch.Field, []graphqlsch.Type, error) {
+func handleArraySchema(params handleArraySchemaParams) ([]graphqlsch.Field, []graphqlsch.Type, error) {
 	f := graphqlsch.Field{
 		Name:       params.Key,
 		IsNullable: false,
@@ -153,11 +137,7 @@ func handleArraySchema(params handleArraySchemaParams, nullAs string) ([]graphql
 		case Number:
 			f.Type = graphqlsch.Float
 		case Null:
-			if nullAs == "" {
-				return nil, nil, fmt.Errorf("cannot infer type of null value (in array at key '%v')", params.Key)
-			} else {
-				f.Type = resolveNullAs(nullAs)
-			}
+			return nil, nil, fmt.Errorf("cannot infer type of null value (in array at key '%v')", params.Key)
 		default:
 			return nil, nil, fmt.Errorf("array (key '%v') has unexpected type '%v'", params.Key, value.Type)
 		}
@@ -167,7 +147,7 @@ func handleArraySchema(params handleArraySchemaParams, nullAs string) ([]graphql
 			ChildSchema: value,
 			Fields:      make([]graphqlsch.Field, 0),
 			Types:       params.Types,
-		}, nullAs)
+		})
 		if err != nil {
 			return nil, nil, err
 		}
@@ -187,8 +167,8 @@ type handleSchemaParams struct {
 	Types       []graphqlsch.Type
 }
 
-func handleSchema(params handleSchemaParams, nullAs string) ([]graphqlsch.Field, []graphqlsch.Type, error) {
-	childTypes, err := ToGraphQLTypes(params.ChildSchema, strings.Title(params.Key), nullAs)
+func handleSchema(params handleSchemaParams) ([]graphqlsch.Field, []graphqlsch.Type, error) {
+	childTypes, err := ToGraphQLTypes(params.ChildSchema, strings.Title(params.Key))
 	if err != nil {
 		return nil, nil, err
 	}

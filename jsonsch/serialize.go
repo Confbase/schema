@@ -18,8 +18,8 @@ func SerializeSchema(s Schema, w io.Writer, doPretty bool) error {
 	return nil
 }
 
-func SerializeGraphQL(s Schema, w io.Writer, nullAs string) error {
-	gqls, err := ToGraphQLSchema(s, nullAs)
+func SerializeGraphQL(s Schema, w io.Writer) error {
+	gqls, err := ToGraphQLSchema(s)
 	if err != nil {
 		return err
 	}
