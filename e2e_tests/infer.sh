@@ -577,6 +577,114 @@ infer_json_empty_array_as_invalid() {
 invalid --empty-arrays-as value '"'"'sanguine'"'"
 }
 
+
+infer_json_null_as_string() {
+    output=`printf '{"myString":null}' | schema infer --null-as=string 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "myString": {
+            "type": "string"
+        }
+    }
+}'
+}
+
+infer_json_null_as_number() {
+    output=`printf '{"myField":null}' | schema infer --null-as=number 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "myField": {
+            "type": "number"
+        }
+    }
+}'
+}
+
+infer_json_null_as_boolean() {
+    output=`printf '{"myBool":null}' | schema infer --null-as=bool 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "myBool": {
+            "type": "boolean"
+        }
+    }
+}'
+}
+
+infer_json_nested_object_null_as_number() {
+    output=`printf '{"myObj":{"myInnerObj":{"myNum":10}}}' | schema infer --null-as=bool 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "myObj": {
+            "title": "",
+            "type": "object",
+            "properties": {
+                "myInnerObj": {
+                    "title": "",
+                    "type": "object",
+                    "properties": {
+                        "myNum": {
+                            "type": "number"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}'
+}
+
+infer_json_nested_array_null_as_number() {
+    output=`printf '{"myObj":{"myInnerObj":{"myNums":[null]}}}' | schema infer --null-as=bool 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "myObj": {
+            "title": "",
+            "type": "object",
+            "properties": {
+                "myInnerObj": {
+                    "title": "",
+                    "type": "object",
+                    "properties": {
+                        "myNums": {
+                            "type": "array",
+                            "items": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}'
+}
+
 infer_yaml_string() {
     output=`printf 'color: red' | schema infer --omit-required=false 2>&1`
     status="$?"
@@ -1760,6 +1868,62 @@ infer_json_null_as_string_graphql() {
 }'
 }
 
+infer_json_null_as_number_graphql() {
+    output=`printf '{"myField":null}' | schema infer --graphql --null-as=number 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type Object {
+    myField: Float!
+}'
+}
+
+infer_json_null_as_boolean_graphql() {
+    output=`printf '{"myBool":null}' | schema infer --graphql --null-as=bool 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type Object {
+    myBool: Boolean!
+}'
+}
+
+infer_json_nested_object_null_as_number_graphql() {
+    output=`printf '{"myObj":{"myInnerObj":{"myNum":10}}}' | schema infer --graphql --null-as=bool 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type MyInnerObj {
+    myNum: Float!
+}
+
+type MyObj {
+    myInnerObj: MyInnerObj!
+}
+
+type Object {
+    myObj: MyObj!
+}'
+}
+
+infer_json_nested_array_null_as_number_graphql() {
+    output=`printf '{"myObj":{"myInnerObj":{"myNums":[null]}}}' | schema infer --graphql --null-as=bool 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type MyInnerObj {
+    myNums: [Boolean!]!
+}
+
+type MyObj {
+    myInnerObj: MyInnerObj!
+}
+
+type Object {
+    myObj: MyObj!
+}'
+}
+
 infer_json_boolean_graphql() {
     output=`printf '{"is2004":true}' | schema infer --graphql --omit-required=false 2>&1`
     status="$?"
@@ -1962,6 +2126,12 @@ tests=(
     "infer_json_empty_array_as_float"
     "infer_json_empty_array_as_object"
     "infer_json_empty_array_as_invalid"
+    "infer_json_null_as_string"
+    "infer_json_null_as_number"
+    "infer_json_null_as_boolean"
+    "infer_json_null_as_string"
+    "infer_json_nested_object_null_as_number"
+    "infer_json_nested_array_null_as_number"
     "infer_yaml_string"
     "infer_yaml_positive_integer"
     "infer_yaml_negative_integer"
@@ -2021,6 +2191,11 @@ tests=(
     "infer_json_zero_graphql"
     "infer_json_null_graphql"
     "infer_json_null_as_string_graphql"
+    "infer_json_null_as_number_graphql"
+    "infer_json_null_as_boolean_graphql"
+    "infer_json_null_as_string_graphql"
+    "infer_json_nested_object_null_as_number_graphql"
+    "infer_json_nested_array_null_as_number_graphql"
     "infer_json_boolean_graphql"
     "infer_json_array_of_strings_graphql"
     "infer_json_array_of_numbers_graphql"
