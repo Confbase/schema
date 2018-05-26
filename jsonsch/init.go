@@ -165,7 +165,7 @@ func generateRandomString(length int) string {
 
 	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-	randomString := make([]rune, length%2147483647)
+	randomString := make([]rune, length%64)
 	for i := range randomString {
 		randomString[i] = letters[rand.Intn(len(letters))]
 	}
