@@ -19,8 +19,25 @@ type Primitive struct {
 	Description string `json:"description,omitempty"`
 }
 
-func NewNull() Primitive {
-	return Primitive{Type: Null}
+func NewNull(params *FromExampleParams) Primitive {
+	if params.NullAs == "" {
+		return Primitive{Type: Null}
+	}
+
+	switch params.NullAs {
+	case "null", "nil":
+		return Primitive{Type: Null}
+	case "bool":
+		return Primitive{Type: Boolean}
+	case "string":
+		return Primitive{Type: String}
+	case "number", "float":
+		return Primitive{Type: Number}
+	case "object":
+		return Primitive{Type: Object}
+	default:
+		return Primitive{Type: Null}
+	}
 }
 
 func NewBoolean() Primitive {

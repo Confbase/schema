@@ -53,6 +53,7 @@ func Infer(r io.Reader, w io.Writer, cfg Config) error {
 		DoOmitReq:     cfg.DoOmitReq,
 		DoMakeReq:     cfg.DoMakeReq,
 		EmptyArraysAs: cfg.EmptyArraysAs,
+		NullAs:        cfg.NullAs,
 	}
 	js, err := jsonsch.FromExample(ex, &params)
 	if err != nil {
@@ -62,7 +63,7 @@ func Infer(r io.Reader, w io.Writer, cfg Config) error {
 	js.SetSchemaField(cfg.SchemaField)
 
 	if cfg.DoGraphQL {
-		if err := jsonsch.SerializeGraphQL(js, w); err != nil {
+		if err := jsonsch.SerializeGraphQL(js, w, cfg.NullAs); err != nil {
 			return fmt.Errorf("failed to serialize schema\n%v", err)
 		}
 	} else {
