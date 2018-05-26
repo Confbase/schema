@@ -27,9 +27,19 @@ printf "OK\n"
 
 printf "Running end-to-end tests...\n"
 source ./e2e_tests/lib.sh
+if [ "$?" -ne 0 ]; then
+    printf "FAIL. failed to source './e2e_tests/lib.sh'\n"
+    exit 1
+fi
 
 for test_module in `ls e2e_tests/*.sh | grep -v 'lib.sh'`; do
+
     source "$test_module" # populates the $tests variable
+    if [ "$?" -ne 0 ]; then
+        printf "FAIL. failed to source '$test_module'\n"
+        exit 1
+    fi
+
     for testcase in "${tests[@]}"; do
         setup_test "$testcase"
         run_test "$testcase"

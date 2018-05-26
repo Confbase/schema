@@ -78,9 +78,15 @@ func FromSchema(data map[string]interface{}, doOmitReq, doSkipRefs bool) (Schema
 	return js, nil
 }
 
-func FromExample(ex *example.Example, doOmitReq, doMakeReq bool) (Schema, error) {
+type FromExampleParams struct {
+	DoOmitReq     bool
+	DoMakeReq     bool
+	EmptyArraysAs string
+}
+
+func FromExample(ex *example.Example, params *FromExampleParams) (Schema, error) {
 	var js Schema
-	if doOmitReq {
+	if params.DoOmitReq {
 		js = NewOmitReq()
 	} else {
 		js = NewInclReq()
@@ -88,12 +94,12 @@ func FromExample(ex *example.Example, doOmitReq, doMakeReq bool) (Schema, error)
 
 	for key, value := range ex.Data {
 		var childDst interface{}
-		if err := buildSchema(value, &childDst, doOmitReq, doMakeReq); err != nil {
+		if err := buildSchema(value, &childDst, params); err != nil {
 			return nil, err
 		}
 		js.SetProperty(key, childDst)
 
-		if doMakeReq {
+		if params.DoMakeReq {
 			js.SetRequired(append(js.GetRequired(), key))
 		}
 	}

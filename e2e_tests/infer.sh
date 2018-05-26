@@ -385,6 +385,198 @@ infer_json_complicated_and_use_schema_field() {
 }'
 }
 
+infer_json_empty_array_as_null() {
+    output=`printf '{"truthinesses":[]}' | schema infer --omit-required=false --empty-arrays-as=null 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "null"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_json_empty_array_as_nil() {
+    output=`printf '{"truthinesses":[]}' | schema infer --omit-required=false --empty-arrays-as=nil 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "null"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_json_empty_array_as_string() {
+    output=`printf '{"truthinesses":[]}' | schema infer --omit-required=false --empty-arrays-as=string 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_json_empty_array_as_str() {
+    output=`printf '{"truthinesses":[]}' | schema infer --omit-required=false --empty-arrays-as=str 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_json_empty_array_as_boolean() {
+    output=`printf '{"truthinesses":[]}' | schema infer --omit-required=false --empty-arrays-as=boolean 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "boolean"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_json_empty_array_as_bool() {
+    output=`printf '{"truthinesses":[]}' | schema infer --omit-required=false --empty-arrays-as=bool 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "boolean"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_json_empty_array_as_number() {
+    output=`printf '{"truthinesses":[]}' | schema infer --omit-required=false --empty-arrays-as=number 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "number"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_json_empty_array_as_float() {
+    output=`printf '{"truthinesses":[]}' | schema infer --omit-required=false --empty-arrays-as=float 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "number"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_json_empty_array_as_object() {
+    output=`printf '{"truthinesses":[]}' | schema infer --omit-required=false --empty-arrays-as=object 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "title": "",
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_json_empty_array_as_invalid() {
+    output=`printf '{"truthinesses":[]}' | schema infer --omit-required=false --empty-arrays-as=sanguine 2>&1`
+    status="$?"
+
+    expect_status='1'
+    expect='error: failed to infer schema
+invalid --empty-arrays-as value '"'"'sanguine'"'"
+}
+
 infer_yaml_string() {
     output=`printf 'color: red' | schema infer --omit-required=false 2>&1`
     status="$?"
@@ -750,6 +942,198 @@ infer_yaml_complicated_and_use_schema_field() {
 }'
 }
 
+infer_yaml_empty_array_as_null() {
+    output=`printf 'truthinesses: []' | schema infer --omit-required=false --empty-arrays-as=null 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "null"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_yaml_empty_array_as_nil() {
+    output=`printf 'truthinesses: []' | schema infer --omit-required=false --empty-arrays-as=nil 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "null"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_yaml_empty_array_as_string() {
+    output=`printf 'truthinesses: []' | schema infer --omit-required=false --empty-arrays-as=string 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_yaml_empty_array_as_str() {
+    output=`printf 'truthinesses: []' | schema infer --omit-required=false --empty-arrays-as=str 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_yaml_empty_array_as_boolean() {
+    output=`printf 'truthinesses: []' | schema infer --omit-required=false --empty-arrays-as=boolean 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "boolean"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_yaml_empty_array_as_bool() {
+    output=`printf 'truthinesses: []' | schema infer --omit-required=false --empty-arrays-as=bool 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "boolean"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_yaml_empty_array_as_number() {
+    output=`printf 'truthinesses: []' | schema infer --omit-required=false --empty-arrays-as=number 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "number"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_yaml_empty_array_as_float() {
+    output=`printf 'truthinesses: []' | schema infer --omit-required=false --empty-arrays-as=float 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "number"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_yaml_empty_array_as_object() {
+    output=`printf 'truthinesses: []' | schema infer --omit-required=false --empty-arrays-as=object 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "title": "",
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_yaml_empty_array_as_invalid() {
+    output=`printf 'truthinesses: []' | schema infer --omit-required=false --empty-arrays-as=sanguine 2>&1`
+    status="$?"
+
+    expect_status='1'
+    expect='error: failed to infer schema
+invalid --empty-arrays-as value '"'"'sanguine'"'"
+}
+
 infer_toml_string() {
     output=`printf 'color = "red"' | schema infer --omit-required=false 2>&1`
     status="$?"
@@ -1089,6 +1473,198 @@ infer_toml_complicated_and_use_schema_field() {
 }'
 }
 
+infer_toml_empty_array_as_null() {
+    output=`printf 'truthinesses = []' | schema infer --omit-required=false --empty-arrays-as=null 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "null"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_toml_empty_array_as_nil() {
+    output=`printf 'truthinesses = []' | schema infer --omit-required=false --empty-arrays-as=nil 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "null"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_toml_empty_array_as_string() {
+    output=`printf 'truthinesses = []' | schema infer --omit-required=false --empty-arrays-as=string 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_toml_empty_array_as_str() {
+    output=`printf 'truthinesses = []' | schema infer --omit-required=false --empty-arrays-as=str 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_toml_empty_array_as_boolean() {
+    output=`printf 'truthinesses = []' | schema infer --omit-required=false --empty-arrays-as=boolean 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "boolean"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_toml_empty_array_as_bool() {
+    output=`printf 'truthinesses = []' | schema infer --omit-required=false --empty-arrays-as=bool 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "boolean"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_toml_empty_array_as_number() {
+    output=`printf 'truthinesses = []' | schema infer --omit-required=false --empty-arrays-as=number 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "number"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_toml_empty_array_as_float() {
+    output=`printf 'truthinesses = []' | schema infer --omit-required=false --empty-arrays-as=float 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "type": "number"
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_toml_empty_array_as_object() {
+    output=`printf 'truthinesses = []' | schema infer --omit-required=false --empty-arrays-as=object 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "truthinesses": {
+            "type": "array",
+            "items": {
+                "title": "",
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    },
+    "required": []
+}'
+}
+
+infer_toml_empty_array_as_invalid() {
+    output=`printf 'truthinesses = []' | schema infer --omit-required=false --empty-arrays-as=sanguine 2>&1`
+    status="$?"
+
+    expect_status='1'
+    expect='error: failed to infer schema
+invalid --empty-arrays-as value '"'"'sanguine'"'"
+}
+
 infer_unrecognized_format_graphql() {
     output=`printf '{' | schema infer --graphql 2>&1`
     status="$?"
@@ -1266,6 +1842,88 @@ type Object {
 }'
 }
 
+infer_json_empty_array_as_string_graphql() {
+    output=`printf '{"people":[]}' | schema infer --graphql --omit-required=false --empty-arrays-as=string 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type Object {
+    people: [String!]!
+}'
+}
+
+infer_json_empty_array_as_str_graphql() {
+    output=`printf '{"people":[]}' | schema infer --graphql --omit-required=false --empty-arrays-as=str 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type Object {
+    people: [String!]!
+}'
+}
+
+infer_json_empty_array_as_number_graphql() {
+    output=`printf '{"people":[]}' | schema infer --graphql --omit-required=false --empty-arrays-as=number 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type Object {
+    people: [Float!]!
+}'
+}
+
+infer_json_empty_array_as_float_graphql() {
+    output=`printf '{"people":[]}' | schema infer --graphql --omit-required=false --empty-arrays-as=float 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type Object {
+    people: [Float!]!
+}'
+}
+
+infer_json_empty_array_as_bool_graphql() {
+    output=`printf '{"people":[]}' | schema infer --graphql --omit-required=false --empty-arrays-as=bool 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type Object {
+    people: [Boolean!]!
+}'
+}
+
+infer_json_empty_array_as_boolean_graphql() {
+    output=`printf '{"people":[]}' | schema infer --graphql --omit-required=false --empty-arrays-as=boolean 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type Object {
+    people: [Boolean!]!
+}'
+}
+
+infer_json_empty_array_as_object_graphql() {
+    output=`printf '{"people":[]}' | schema infer --graphql --omit-required=false --empty-arrays-as=object 2>&1`
+    status="$?"
+
+    expect_status='0'
+    expect='type People {
+}
+
+type Object {
+    people: [People!]!
+}'
+}
+
+infer_json_empty_array_as_invalid_graphql() {
+    output=`printf '{"people":[]}' | schema infer --graphql --omit-required=false --empty-arrays-as=sanguine 2>&1`
+    status="$?"
+
+    expect_status='1'
+    expect='error: failed to infer schema
+invalid --empty-arrays-as value '"'"'sanguine'"'"
+}
+
 tests=(
     "infer_unrecognized_format"
     "infer_json_minimal"
@@ -1284,6 +1942,16 @@ tests=(
     "infer_json_array_of_array_objects"
     "infer_json_array_of_objects_with_multiple_fields"
     "infer_json_complicated_and_use_schema_field"
+    "infer_json_empty_array_as_null"
+    "infer_json_empty_array_as_nil"
+    "infer_json_empty_array_as_string"
+    "infer_json_empty_array_as_str"
+    "infer_json_empty_array_as_bool"
+    "infer_json_empty_array_as_boolean"
+    "infer_json_empty_array_as_number"
+    "infer_json_empty_array_as_float"
+    "infer_json_empty_array_as_object"
+    "infer_json_empty_array_as_invalid"
     "infer_yaml_string"
     "infer_yaml_positive_integer"
     "infer_yaml_negative_integer"
@@ -1299,6 +1967,16 @@ tests=(
     "infer_yaml_array_of_array_objects"
     "infer_yaml_array_of_objects_with_multiple_fields"
     "infer_yaml_complicated_and_use_schema_field"
+    "infer_yaml_empty_array_as_null"
+    "infer_yaml_empty_array_as_nil"
+    "infer_yaml_empty_array_as_string"
+    "infer_yaml_empty_array_as_str"
+    "infer_yaml_empty_array_as_bool"
+    "infer_yaml_empty_array_as_boolean"
+    "infer_yaml_empty_array_as_number"
+    "infer_yaml_empty_array_as_float"
+    "infer_yaml_empty_array_as_object"
+    "infer_yaml_empty_array_as_invalid"
     "infer_toml_string"
     "infer_toml_positive_integer"
     "infer_toml_negative_integer"
@@ -1313,6 +1991,16 @@ tests=(
     "infer_toml_array_of_tables"
     "infer_toml_array_of_tables_with_multiple_fields"
     "infer_toml_complicated_and_use_schema_field"
+    "infer_toml_empty_array_as_null"
+    "infer_toml_empty_array_as_nil"
+    "infer_toml_empty_array_as_string"
+    "infer_toml_empty_array_as_str"
+    "infer_toml_empty_array_as_bool"
+    "infer_toml_empty_array_as_boolean"
+    "infer_toml_empty_array_as_number"
+    "infer_toml_empty_array_as_float"
+    "infer_toml_empty_array_as_object"
+    "infer_toml_empty_array_as_invalid"
     "infer_unrecognized_format_graphql"
     "infer_json_minimal_graphql"
     "infer_json_string_graphql"
@@ -1329,4 +2017,12 @@ tests=(
     "infer_json_array_of_objects_graphql"
     "infer_json_array_of_array_objects_graphql"
     "infer_json_array_of_objects_with_multiple_fields_graphql"
+    "infer_json_empty_array_as_string_graphql"
+    "infer_json_empty_array_as_str_graphql"
+    "infer_json_empty_array_as_number_graphql"
+    "infer_json_empty_array_as_float_graphql"
+    "infer_json_empty_array_as_bool_graphql"
+    "infer_json_empty_array_as_boolean_graphql"
+    "infer_json_empty_array_as_object_graphql"
+    "infer_json_empty_array_as_invalid_graphql"
 )
