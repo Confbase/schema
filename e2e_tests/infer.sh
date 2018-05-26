@@ -1750,8 +1750,8 @@ infer_json_null_graphql() {
     expect=`printf "error: failed to serialize schema\ncannot infer type of null value (see key 'is2004')"`
 }
 
-infer_json_as_null_string_graphql() {
-    output=`printf '{"myString":null}' | schema infer --graphql --as-null=string --omit-required=false 2>&1`
+infer_json_null_as_string_graphql() {
+    output=`printf '{"myString":null}' | schema infer --graphql --null-as=string --omit-required=false 2>&1`
     status="$?"
 
     expect_status='0'
@@ -2020,7 +2020,7 @@ tests=(
     "infer_json_negative_float_graphql"
     "infer_json_zero_graphql"
     "infer_json_null_graphql"
-    "infer_json_as_null_string_graphql"
+    "infer_json_null_as_string_graphql"
     "infer_json_boolean_graphql"
     "infer_json_array_of_strings_graphql"
     "infer_json_array_of_numbers_graphql"
