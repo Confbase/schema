@@ -14,7 +14,7 @@ import (
 // InitSchema assumes all $ref fields are already either
 // 1) resolved and replaced by a network request
 // 2) replaced by an empty object
-func InitSchema(s Schema, doPopLists bool) (map[string]interface{}, error) {
+func InitSchema(s Schema, doPopLists bool, doRandom bool) (map[string]interface{}, error) {
 	data := make(map[string]interface{})
 	for key, value := range s.GetProperties() {
 
@@ -23,8 +23,14 @@ func InitSchema(s Schema, doPopLists bool) (map[string]interface{}, error) {
 			return nil, err
 		}
 
-		if err := storeTuple(tup, data, key, doPopLists); err != nil {
-			return nil, err
+		if doRandom {
+			if err := storeRandomTuple(tup, data, key, doPopLists); err != nil {
+				return nil, err
+			}
+		} else {
+			if err := storeTuple(tup, data, key, doPopLists); err != nil {
+				return nil, err
+			}
 		}
 	}
 	return data, nil
@@ -70,7 +76,7 @@ func storeTuple(tup tuple, dstMap map[string]interface{}, key string, doPopLists
 		if err != nil {
 			return err
 		}
-		childInst, err := InitSchema(childSchema, doPopLists)
+		childInst, err := InitSchema(childSchema, doPopLists, false)
 		if err != nil {
 			return err
 		}
@@ -122,7 +128,7 @@ func appendTuple(tup tuple, dstSlice []interface{}, key string) ([]interface{}, 
 		if err != nil {
 			return nil, err
 		}
-		childInst, err := InitSchema(childSchema, true)
+		childInst, err := InitSchema(childSchema, true, false)
 		if err != nil {
 			return nil, err
 		}
@@ -185,7 +191,7 @@ func storeRandomTuple(tup tuple, dstMap map[string]interface{}, key string, doPo
 		if err != nil {
 			return err
 		}
-		childInst, err := InitSchema(childSchema, doPopLists)
+		childInst, err := InitSchema(childSchema, doPopLists, true)
 		if err != nil {
 			return err
 		}
@@ -240,7 +246,7 @@ func appendRandomTuple(tup tuple, dstSlice []interface{}, key string) ([]interfa
 		if err != nil {
 			return nil, err
 		}
-		childInst, err := InitSchema(childSchema, true)
+		childInst, err := InitSchema(childSchema, true, true)
 		if err != nil {
 			return nil, err
 		}
