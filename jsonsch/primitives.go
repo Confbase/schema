@@ -24,7 +24,7 @@ func NewNull(params *FromExampleParams) Primitive {
 		return Primitive{Type: Null}
 	}
 
-	switch params.EmptyArraysAs {
+	switch params.NullAs {
 	case "null", "nil":
 		return Primitive{Type: Null}
 	case "bool":
