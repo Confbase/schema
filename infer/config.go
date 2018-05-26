@@ -7,4 +7,5 @@ type Config struct {
 	DoGraphQL     bool
 	SchemaField   string
 	EmptyArraysAs string
+	NullAs        string
 }

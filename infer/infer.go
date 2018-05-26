@@ -53,6 +53,7 @@ func Infer(r io.Reader, w io.Writer, cfg Config) error {
 		DoOmitReq:     cfg.DoOmitReq,
 		DoMakeReq:     cfg.DoMakeReq,
 		EmptyArraysAs: cfg.EmptyArraysAs,
+		NullAs:        cfg.NullAs,
 	}
 	js, err := jsonsch.FromExample(ex, &params)
 	if err != nil {

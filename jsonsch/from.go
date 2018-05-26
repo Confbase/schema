@@ -82,6 +82,7 @@ type FromExampleParams struct {
 	DoOmitReq     bool
 	DoMakeReq     bool
 	EmptyArraysAs string
+	NullAs        string
 }
 
 func FromExample(ex *example.Example, params *FromExampleParams) (Schema, error) {
