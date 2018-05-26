@@ -345,4 +345,12 @@ To run all tests (unit, formatting, and end-to-end), execute `./test.sh`.
 
 # Contributing
 
-Issues and pull requests are welcome.
+Issues and pull requests are welcome. If you are making a significant
+contribution (more than fixing a typo), add your name to the "Contributors"
+section in your PR.
+
+### Contributors
+
+[Thomas Fischer](https://github.com/thomasdfischer)
+[Ish Shah](https://github.com/theishshah)
+[Victor Niu](https://github.com/lathie)
