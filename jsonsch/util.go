@@ -10,7 +10,7 @@ import (
 func buildSchema(fromValue interface{}, dst *interface{}, params *FromExampleParams) error {
 	switch v := fromValue.(type) {
 	case nil:
-		*dst = NewNull()
+		*dst = NewNull(params)
 	case bool:
 		*dst = NewBoolean()
 	case string:

@@ -19,8 +19,25 @@ type Primitive struct {
 	Description string `json:"description,omitempty"`
 }
 
-func NewNull() Primitive {
-	return Primitive{Type: Null}
+func NewNull(params *FromExampleParams) Primitive {
+	if params.NullAs == "" {
+		return Primitive{Type: Null}
+	}
+
+	switch params.EmptyArraysAs {
+	case "null", "nil":
+		return Primitive{Type: Null}
+	case "bool":
+		return Primitive{Type: Boolean}
+	case "string":
+		return Primitive{Type: String}
+	case "number", "float":
+		return Primitive{Type: Number}
+	case "object":
+		return Primitive{Type: Object}
+	default:
+		return Primitive{Type: Null}
+	}
 }
 
 func NewBoolean() Primitive {
@@ -78,24 +95,4 @@ func NewArray(data []interface{}, params *FromExampleParams) (*ArraySchema, erro
 	}
 
 	return &a, nil
-}
-
-func newNulledType(params *FromExampleParams) (Primitive, error) {
-	if params.NullAs == "" {
-		return Primitive{Type: Null}, fmt.Errorf("cannot infer type to be nulled; consider using --null-as")
-	}
-	switch params.NullAs {
-	case "null", "nil":
-		return Primitive{Type: Null, Description: "nil"}, nil
-	case "bool", "boolean":
-		return Primitive{Type: Boolean, Description: "false"}, nil
-	case "string", "str":
-		return Primitive{Type: String, Description: "nil"}, nil
-	case "number", "float":
-		return Primitive{Type: Number, Description: "0"}, nil
-	case "object":
-		return Primitive{Type: Object, Description: "nil"}, nil
-	default:
-		return Primitive{Type: Null}, fmt.Errorf("invalid --null-as value '%v'", params.NullAs)
-	}
 }
