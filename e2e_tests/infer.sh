@@ -1751,7 +1751,7 @@ infer_json_null_graphql() {
 }
 
 infer_json_null_as_string_graphql() {
-    output=`printf '{"myString":null}' | schema infer --graphql --null-as=string --omit-required=false 2>&1`
+    output=`printf '{"myString":null}' | schema infer --graphql --null-as=string 2>&1`
     status="$?"
 
     expect_status='0'
