@@ -18,8 +18,8 @@
 
 Common uses cases:
 
-* Infer [GraphQL](https://graphql.org) schemas from arbirtrary JSON,
-GraphQL schemas, protobuf schemas, YAML, TOML, and XML:
+* Infer [GraphQL](https://graphql.org) schemas from arbirtrary JSON, YAML,
+TOML, and XML:
 
 ```
 $ curl http://piedpiper.tld/some_endpoint | schema infer --graphql
@@ -351,6 +351,6 @@ section in your PR.
 
 ### Contributors
 
-[Thomas Fischer](https://github.com/thomasdfischer)
-[Ish Shah](https://github.com/theishshah)
-[Victor Niu](https://github.com/lathie)
+* [Thomas Fischer](https://github.com/thomasdfischer)
+* [Ish Shah](https://github.com/theishshah)
+* [Victor Niu](https://github.com/lathie)
