@@ -57,7 +57,7 @@ type ArraySchema struct {
 	Items interface{} `json:"items"`
 }
 
-func NewArray(data []interface{}, params *FromExampleParams) (*ArraySchema, error) {
+func NewArray(data []interface{}, params *FromExampleParams) (ArraySchema, error) {
 	// TODO: incoporate entire array depending on mode
 	// E.g.,
 	// - use the first element to infer array type
@@ -68,7 +68,7 @@ func NewArray(data []interface{}, params *FromExampleParams) (*ArraySchema, erro
 
 	if len(data) == 0 {
 		if params.EmptyArraysAs == "" {
-			return nil, fmt.Errorf("cannot infer type of empty array; consider using --empty-arrays-as")
+			return ArraySchema{}, fmt.Errorf("cannot infer type of empty array; consider using --empty-arrays-as")
 		}
 		switch params.EmptyArraysAs {
 		case "null", "nil":
@@ -82,7 +82,7 @@ func NewArray(data []interface{}, params *FromExampleParams) (*ArraySchema, erro
 		case "object":
 			elem = make(map[string]interface{})
 		default:
-			return nil, fmt.Errorf("invalid --empty-arrays-as value '%v'", params.EmptyArraysAs)
+			return ArraySchema{}, fmt.Errorf("invalid --empty-arrays-as value '%v'", params.EmptyArraysAs)
 		}
 	} else {
 		elem = data[0]
@@ -91,8 +91,8 @@ func NewArray(data []interface{}, params *FromExampleParams) (*ArraySchema, erro
 	a := ArraySchema{Type: Array}
 
 	if err := buildSchema(elem, &a.Items, params); err != nil {
-		return nil, err
+		return ArraySchema{}, err
 	}
 
-	return &a, nil
+	return a, nil
 }

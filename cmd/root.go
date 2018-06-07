@@ -27,8 +27,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// RootCmd represents the base command when called without any subcommands
-var RootCmd = &cobra.Command{
+var rootCmd = &cobra.Command{
 	Use:   "schema",
 	Short: "A tool for inferring and instantiating schemas",
 	Long: `This tool provides three subcommands:
@@ -43,7 +42,7 @@ See the man pages for idioms, examples, and more information.`,
 }
 
 func Execute() {
-	if err := RootCmd.Execute(); err != nil {
+	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
 	}

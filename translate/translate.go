@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/Confbase/schema/util"
+	"github.com/Confbase/schema/decode"
 )
 
 func TranslateEntry(cfg Config, targets []string) {
@@ -41,7 +41,7 @@ func TranslateEntry(cfg Config, targets []string) {
 }
 
 func Translate(r io.Reader, w io.Writer, cfg Config) error {
-	m, err := util.MuxDecode(r)
+	m, err := decode.MuxDecode(r)
 	if err != nil {
 		return err
 	}
@@ -55,9 +55,9 @@ func Translate(r io.Reader, w io.Writer, cfg Config) error {
 		if err != nil {
 			return err
 		}
-		return util.DemuxEncode(w, goodM, cfg.OutFmt(), cfg.DoPretty)
+		return decode.DemuxEncode(w, goodM, cfg.OutFmt(), cfg.DoPretty)
 	}
-	return util.DemuxEncode(w, m, cfg.OutFmt(), cfg.DoPretty)
+	return decode.DemuxEncode(w, m, cfg.OutFmt(), cfg.DoPretty)
 }
 
 func isAllKeysStrs(some interface{}) bool {
