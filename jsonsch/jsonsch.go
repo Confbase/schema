@@ -7,6 +7,11 @@ import (
 	"github.com/Confbase/schema/graphqlsch"
 )
 
+// This only exists because we need two different
+// types for the same exact struct---a struct representing
+// JSON schema---where the struct tags of one of the types
+// are different from the struct tags of the other type.
+// This way, we can omit the `required` field during serialization.
 type Schema interface {
 	GetSchemaField() string
 	SetSchemaField(string)
@@ -34,7 +39,7 @@ func ToGraphQLTypes(rootSchema Schema, rootName string) ([]graphqlsch.Type, erro
 				return nil, err
 			}
 			fields = newFields
-		case *ArraySchema:
+		case ArraySchema:
 			params := handleArraySchemaParams{
 				Key:    k,
 				AS:     value,
@@ -102,7 +107,7 @@ func handlePrimitive(key string, prim Primitive, fields []graphqlsch.Field) ([]g
 
 type handleArraySchemaParams struct {
 	Key    string
-	AS     *ArraySchema
+	AS     ArraySchema
 	Fields []graphqlsch.Field
 	Types  []graphqlsch.Type
 }
@@ -118,7 +123,7 @@ func handleArraySchema(params handleArraySchemaParams) ([]graphqlsch.Field, []gr
 	// unwrap multi-dimensional arrays
 	item := params.AS.Items
 	for {
-		unwrapped, ok := item.(*ArraySchema)
+		unwrapped, ok := item.(ArraySchema)
 		if !ok {
 			break
 		}

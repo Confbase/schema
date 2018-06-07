@@ -7,9 +7,9 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/Confbase/schema/decode"
 	"github.com/Confbase/schema/example"
 	"github.com/Confbase/schema/jsonsch"
-	"github.com/Confbase/schema/util"
 )
 
 func InferEntry(cfg Config, targets []string) {
@@ -43,7 +43,7 @@ func InferEntry(cfg Config, targets []string) {
 }
 
 func Infer(r io.Reader, w io.Writer, cfg Config) error {
-	data, err := util.MuxDecode(r)
+	data, err := decode.MuxDecode(r)
 	if err != nil {
 		return err
 	}

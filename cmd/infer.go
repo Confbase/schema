@@ -58,5 +58,5 @@ func init() {
 	inferCmd.Flags().StringVarP(&inferCfg.SchemaField, "schema-field", "s", "", "specifies the value of the $schema field")
 	inferCmd.Flags().StringVarP(&inferCfg.EmptyArraysAs, "empty-arrays-as", "", "", "specifies the element type of empty arrays")
 	inferCmd.Flags().StringVarP(&inferCfg.NullAs, "null-as", "", "", "specifies the element type to null")
-	RootCmd.AddCommand(inferCmd)
+	rootCmd.AddCommand(inferCmd)
 }

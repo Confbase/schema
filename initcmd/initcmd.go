@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Confbase/schema/decode"
 	"github.com/Confbase/schema/jsonsch"
-	"github.com/Confbase/schema/util"
 )
 
 func Init(cfg Config, targets []string) {
@@ -46,7 +46,7 @@ func Init(cfg Config, targets []string) {
 			fmt.Fprintf(os.Stderr, "instance of schema\n%v\n", err)
 			os.Exit(1)
 		}
-		err = util.DemuxEncode(os.Stdout, inst, cfg.OutFmt(), cfg.DoPretty)
+		err = decode.DemuxEncode(os.Stdout, inst, cfg.OutFmt(), cfg.DoPretty)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: failed to serialize instance ")
 			fmt.Fprintf(os.Stderr, "of schema\n%v\n", err)
@@ -69,7 +69,7 @@ func Init(cfg Config, targets []string) {
 			fmt.Fprintf(os.Stderr, "schema\n%v\n", err)
 			os.Exit(1)
 		}
-		err = util.DemuxEncode(os.Stdout, inst, cfg.OutFmt(), cfg.DoPretty)
+		err = decode.DemuxEncode(os.Stdout, inst, cfg.OutFmt(), cfg.DoPretty)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: failed to serialize instance of ")
 			fmt.Fprintf(os.Stderr, "schema\n%v\n", err)

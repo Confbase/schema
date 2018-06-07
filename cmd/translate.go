@@ -22,10 +22,9 @@ import (
 
 var translateCfg translate.Config
 
-// translateCmd represents the translate command
 var translateCmd = &cobra.Command{
 	Use:   "translate",
-	Short: "translate input data into another format",
+	Short: "Translate input data into another format",
 	Long: `Translate input data into another format.
 
 If no input file is specified, stdin is used as input.
@@ -50,5 +49,5 @@ func init() {
 	translateCmd.Flags().BoolVarP(&translateCfg.DoXml, "xml", "", false, "initialize as XML")
 	translateCmd.Flags().BoolVarP(&translateCfg.DoProtobuf, "protobuf", "", false, "initialize as protocol buffer")
 	translateCmd.Flags().BoolVarP(&translateCfg.DoPretty, "pretty", "", true, "pretty-print the output")
-	RootCmd.AddCommand(translateCmd)
+	rootCmd.AddCommand(translateCmd)
 }
