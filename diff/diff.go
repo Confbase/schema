@@ -14,6 +14,53 @@ func Diff(s1, s2 jsonsch.Schema) ([]Difference, error) {
 	return diff(s1, s2, "")
 }
 
+func Entry(cfg *Config) {
+	f1, err := os.Open(cfg.Schema1)
+	nilOrFatal(err)
+	f2, err := os.Open(cfg.Schema2)
+	nilOrFatal(err)
+
+	map1, err := decode.MuxDecode(f1)
+	nilOrFatal(err)
+	f1.Close()
+	map2, err := decode.MuxDecode(f2)
+	nilOrFatal(err)
+	f2.Close()
+
+	s1, err := jsonsch.FromSchema(map1, cfg.DoSkipRefs)
+	if err != nil {
+		params := jsonsch.FromExampleParams{
+			DoOmitReq:     false,
+			DoMakeReq:     true,
+			EmptyArraysAs: "",
+			NullAs:        "",
+		}
+		s1, err = jsonsch.FromExample(example.New(map1), &params)
+		nilOrFatal(err)
+	}
+	s2, err := jsonsch.FromSchema(map2, cfg.DoSkipRefs)
+	if err != nil {
+		params := jsonsch.FromExampleParams{
+			DoOmitReq:     false,
+			DoMakeReq:     true,
+			EmptyArraysAs: "",
+			NullAs:        "",
+		}
+		s2, err = jsonsch.FromExample(example.New(map2), &params)
+		nilOrFatal(err)
+	}
+
+	diffs, err := Diff(s1, s2)
+	nilOrFatal(err)
+
+	for _, d := range diffs {
+		fmt.Println(d)
+	}
+	if len(diffs) != 0 {
+		os.Exit(1)
+	}
+}
+
 func diff(s1, s2 jsonsch.Schema, parentKey string) ([]Difference, error) {
 	const (
 		schemaOneName = "the first schema"
@@ -32,7 +79,7 @@ func diff(s1, s2 jsonsch.Schema, parentKey string) ([]Difference, error) {
 
 	// differingTypes is the set of fields which have differing types.
 	// Any DifferyingType found in s1 is guaranteed
-	// to be in s2, but we ony want one of these instances
+	// to be in s2, but we ony want *one* of these instances
 	// in the returned diffs.
 	diffs, differingTypes := filterUniqueDiffs(s1Diffs, make(map[string]bool))
 	diffs2, _ := filterUniqueDiffs(s2Diffs, differingTypes)
@@ -72,69 +119,59 @@ func diffPropsFrom(props1, props2 map[string]interface{}, missingFrom string) ([
 			diffs = append(diffs, &MissingField{k, missingFrom})
 			continue
 		}
-		var type1, type2 string
-		var as1, as2 jsonsch.ArraySchema
+		subDiffs, err := diffSomething(v1, v2, k)
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, subDiffs...)
+	}
+	return diffs, nil
+}
 
-		resolvedV1, ok := v1.(map[string]interface{})
-		if ok {
-			t, ok := resolvedV1["type"]
-			if !ok {
-				return nil, fmt.Errorf("key '%v' has no 'type' field", k)
-			}
-			type1, ok = t.(string)
-			if !ok {
-				return nil, fmt.Errorf("key '%v' has 'type' field, but it's not a string", k)
-			}
-		} else {
-			as1, ok = v1.(jsonsch.ArraySchema)
-			if !ok {
-				return nil, fmt.Errorf("key '%v' has unrecognized type '%v'", k, reflect.TypeOf(v1))
-			}
-			type1 = string(as1.Type)
+func diffSomething(v1, v2 interface{}, k string) ([]Difference, error) {
+	diffs := make([]Difference, 0)
+
+	type1, err := getType(v1, k)
+	if err != nil {
+		return nil, err
+	}
+	type2, err := getType(v2, k)
+	if err != nil {
+		return nil, err
+	}
+	if type1 != type2 {
+		diffs = append(diffs, &DifferingTypes{k})
+		return diffs, nil
+	}
+
+	switch v1.(type) {
+	case jsonsch.Primitive:
+		return diffs, nil
+	case jsonsch.ArraySchema:
+		a1, ok := v1.(jsonsch.ArraySchema)
+		if !ok {
+			return nil, fmt.Errorf("saw type 'array' but internal type is not array")
 		}
-		resolvedV2, ok := v2.(map[string]interface{})
-		if ok {
-			t, ok := resolvedV2["type"]
-			if !ok {
-				return nil, fmt.Errorf("key '%v' has no 'type' field", k)
-			}
-			type2, ok = t.(string)
-			if !ok {
-				return nil, fmt.Errorf("key '%v' has 'type' field, but it's not a string", k)
-			}
-		} else {
-			as2, ok = v2.(jsonsch.ArraySchema)
-			if !ok {
-				return nil, fmt.Errorf("key '%v' has unrecognized type '%v'", k, reflect.TypeOf(v2))
-			}
-			type2 = string(as2.Type)
+		a2, ok := v2.(jsonsch.ArraySchema)
+		if !ok {
+			return nil, fmt.Errorf("saw type 'array' but internal type is not array")
 		}
-		if type1 != type2 {
-			diffs = append(diffs, &DifferingTypes{k})
-			continue
+		subDiffs, err := diffSomething(a1.Items, a2.Items, "items")
+		if err != nil {
+			return nil, err
 		}
-		var s1, s2 jsonsch.Schema
-		if type1 == string(jsonsch.Array) {
-			s1, ok = as1.Items.(jsonsch.Schema)
-			if !ok {
-				return nil, fmt.Errorf("in the first schema, the key '%v' is an array but its 'items' field is not a JSON Schema object, %T", k)
-			}
-			s2, ok = as2.Items.(jsonsch.Schema)
-			if !ok {
-				return nil, fmt.Errorf("in the second schema, the key '%v' is an array but its 'items' field is not a JSON Schema object", k)
-			}
-		} else if type1 == string(jsonsch.Object) {
-			var err error
-			s1, err = jsonsch.FromSchema(resolvedV1, false, true)
-			if err != nil {
-				return nil, err
-			}
-			s2, err = jsonsch.FromSchema(resolvedV2, false, true)
-			if err != nil {
-				return nil, err
-			}
-		} else {
-			continue
+		for _, d := range subDiffs {
+			prependKey(d, k)
+			diffs = append(diffs, d)
+		}
+	case jsonsch.Schema:
+		s1, ok := v1.(jsonsch.Schema)
+		if !ok {
+			return nil, fmt.Errorf("saw type 'object' but internal type is not object")
+		}
+		s2, ok := v2.(jsonsch.Schema)
+		if !ok {
+			return nil, fmt.Errorf("saw type 'object' but internal type is not object")
 		}
 		subDiffs, err := Diff(s1, s2)
 		if err != nil {
@@ -144,58 +181,28 @@ func diffPropsFrom(props1, props2 map[string]interface{}, missingFrom string) ([
 			prependKey(d, k)
 			diffs = append(diffs, d)
 		}
-
+	default:
+		return nil, fmt.Errorf("key '%v' has unrecognized type '%v'", k, reflect.TypeOf(v1))
 	}
 	return diffs, nil
+}
+
+func getType(schema interface{}, k string) (jsonsch.Type, error) {
+	switch v := schema.(type) {
+	case jsonsch.Primitive:
+		return v.Type, nil
+	case jsonsch.ArraySchema:
+		return v.Type, nil
+	case jsonsch.Schema:
+		return v.GetType(), nil
+	default:
+		return "", fmt.Errorf("key '%v' has unrecognized type '%v'", k, reflect.TypeOf(v))
+	}
 }
 
 func nilOrFatal(err error) {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
-	}
-}
-
-func Entry(cfg *Config) {
-	f1, err := os.Open(cfg.Schema1)
-	nilOrFatal(err)
-	f2, err := os.Open(cfg.Schema2)
-	nilOrFatal(err)
-
-	map1, err := decode.MuxDecode(f1)
-	nilOrFatal(err)
-	f1.Close()
-	map2, err := decode.MuxDecode(f2)
-	nilOrFatal(err)
-	f2.Close()
-
-	s1, err := jsonsch.FromSchema(map1, false, cfg.DoSkipRefs)
-	if err != nil {
-		params := jsonsch.FromExampleParams{
-			DoOmitReq:     false,
-			DoMakeReq:     true,
-			EmptyArraysAs: "",
-			NullAs:        "",
-		}
-		s1, err = jsonsch.FromExample(example.New(map1), &params)
-		nilOrFatal(err)
-	}
-	s2, err := jsonsch.FromSchema(map2, false, cfg.DoSkipRefs)
-	if err != nil {
-		params := jsonsch.FromExampleParams{
-			DoOmitReq:     false,
-			DoMakeReq:     true,
-			EmptyArraysAs: "",
-			NullAs:        "",
-		}
-		s2, err = jsonsch.FromExample(example.New(map2), &params)
-		nilOrFatal(err)
-	}
-
-	diffs, err := Diff(s1, s2)
-	nilOrFatal(err)
-
-	for _, d := range diffs {
-		fmt.Println(d)
 	}
 }

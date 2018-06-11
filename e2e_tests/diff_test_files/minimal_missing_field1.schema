@@ -1,0 +1,12 @@
+{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "hello": {
+            "type": "string"
+        },
+        "missingField": {
+            "type": "number"
+        }
+    }
+}

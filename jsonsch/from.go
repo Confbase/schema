@@ -6,13 +6,9 @@ import (
 	"github.com/Confbase/schema/example"
 )
 
-func FromSchema(data map[string]interface{}, doOmitReq, doSkipRefs bool) (Schema, error) {
+func FromSchema(data map[string]interface{}, doSkipRefs bool) (Schema, error) {
 	var js Schema
-	if doOmitReq {
-		js = NewOmitReq()
-	} else {
-		js = NewInclReq()
-	}
+	js = NewInclReq()
 
 	if err := ReplaceRefs(data, doSkipRefs); err != nil {
 		return nil, err
@@ -39,7 +35,19 @@ func FromSchema(data map[string]interface{}, doOmitReq, doSkipRefs bool) (Schema
 		return nil, fmt.Errorf("'properties' field must be an object")
 
 	}
-	js.SetProperties(properties)
+	for k, v := range properties {
+		propObj, ok := v.(map[string]interface{})
+		if !ok {
+			return nil, fmt.Errorf("'properties' field must only contain objects")
+		}
+
+		subSchema, err := fromSchema(propObj, k)
+		if err != nil {
+			return nil, err
+		}
+		js.SetProperty(k, subSchema)
+
+	}
 
 	if reqInter, ok := data["required"]; ok {
 		wrongType := false
@@ -76,6 +84,66 @@ func FromSchema(data map[string]interface{}, doOmitReq, doSkipRefs bool) (Schema
 	}
 
 	return js, nil
+}
+
+// fromSchema takes a map[string]interface{} and returns a
+// jsonsch-Typed schema object. The `k` field is not optional
+// and only used in error messages.
+func fromSchema(propObj map[string]interface{}, k string) (interface{}, error) {
+	tInter, ok := propObj["type"]
+	if !ok {
+		return nil, fmt.Errorf("field '%v' does not have a 'type' field", k)
+	}
+	tStr, ok := tInter.(string)
+	if !ok {
+		return nil, fmt.Errorf("field '%v' has a 'type' field, but it's not a string", k)
+	}
+
+	params := FromExampleParams{
+		DoOmitReq:     false,
+		DoMakeReq:     false,
+		EmptyArraysAs: "",
+		NullAs:        "",
+	}
+
+	switch Type(tStr) {
+	case Null:
+		return NewNull(&params), nil
+	case Boolean:
+		return NewBoolean(), nil
+	case String:
+		return NewString(), nil
+
+	case Number, "integer", "float":
+		return NewNumber(), nil
+
+	case Array:
+		itemsInter, ok := propObj["items"]
+		if !ok {
+			return nil, fmt.Errorf("key '%v' has 'type' field of value '%v', but no 'items' field", k, Array)
+		}
+		items, ok := itemsInter.(map[string]interface{})
+		if !ok {
+			return nil, fmt.Errorf("key '%v' has 'items' field, but it's not a map[string]interface{}", k)
+		}
+		arr, err := fromSchema(items, fmt.Sprintf("%v.items", k))
+		if err != nil {
+			return nil, err
+		}
+		return NewArray(arr), nil
+
+	case Object:
+		// value is another JSON object
+		obj, err := FromSchema(propObj, true)
+		if err != nil {
+			return nil, err
+		}
+		return obj, nil
+
+	default:
+		return nil, fmt.Errorf("unknown type '%v'", tStr)
+	}
+
 }
 
 type FromExampleParams struct {
