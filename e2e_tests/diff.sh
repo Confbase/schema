@@ -87,7 +87,7 @@ diff_minimal_missing_field_json1() {
     status="$?"
 
     expect_status='1'
-    expect="the field 'missingField' is missing from the second schema"
+    expect="the field 'missingField' is missing from the second file"
 }
 
 diff_minimal_missing_field_json2() {
@@ -97,7 +97,7 @@ diff_minimal_missing_field_json2() {
     status="$?"
 
     expect_status='1'
-    expect="the field 'missingField' is missing from the first schema"
+    expect="the field 'missingField' is missing from the first file"
 }
 
 diff_minimal_missing_field_json_same1() {
@@ -207,7 +207,7 @@ diff_minimal_missing_field_schema1() {
     status="$?"
 
     expect_status='1'
-    expect="the field 'missingField' is missing from the second schema"
+    expect="the field 'missingField' is missing from the second file"
 }
 
 diff_minimal_missing_field_schema2() {
@@ -217,7 +217,7 @@ diff_minimal_missing_field_schema2() {
     status="$?"
 
     expect_status='1'
-    expect="the field 'missingField' is missing from the first schema"
+    expect="the field 'missingField' is missing from the first file"
 }
 
 diff_minimal_missing_field_schema_same1() {
@@ -327,7 +327,7 @@ diff_minimal_missing_field_yaml1() {
     status="$?"
 
     expect_status='1'
-    expect="the field 'missingField' is missing from the second schema"
+    expect="the field 'missingField' is missing from the second file"
 }
 
 diff_minimal_missing_field_yaml2() {
@@ -337,7 +337,7 @@ diff_minimal_missing_field_yaml2() {
     status="$?"
 
     expect_status='1'
-    expect="the field 'missingField' is missing from the first schema"
+    expect="the field 'missingField' is missing from the first file"
 }
 
 diff_minimal_missing_field_yaml_same1() {
@@ -447,7 +447,7 @@ diff_minimal_missing_field_toml1() {
     status="$?"
 
     expect_status='1'
-    expect="the field 'missingField' is missing from the second schema"
+    expect="the field 'missingField' is missing from the second file"
 }
 
 diff_minimal_missing_field_toml2() {
@@ -457,7 +457,7 @@ diff_minimal_missing_field_toml2() {
     status="$?"
 
     expect_status='1'
-    expect="the field 'missingField' is missing from the first schema"
+    expect="the field 'missingField' is missing from the first file"
 }
 
 diff_minimal_missing_field_toml_same1() {
