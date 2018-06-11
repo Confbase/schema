@@ -57,7 +57,11 @@ type ArraySchema struct {
 	Items interface{} `json:"items"`
 }
 
-func NewArray(data []interface{}, params *FromExampleParams) (ArraySchema, error) {
+func NewArray(items interface{}) ArraySchema {
+	return ArraySchema{Type: Array, Items: items}
+}
+
+func TodoRenameThisFunctionLmao(data []interface{}, params *FromExampleParams) (ArraySchema, error) {
 	// TODO: incoporate entire array depending on mode
 	// E.g.,
 	// - use the first element to infer array type

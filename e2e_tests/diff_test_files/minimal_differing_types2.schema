@@ -1,0 +1,9 @@
+{
+    "title": "",
+    "type": "object",
+    "properties": {
+        "age": {
+            "type": "string"
+        }
+    }
+}

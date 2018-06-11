@@ -2,6 +2,7 @@ package jsonsch
 
 import (
 	"fmt"
+	"math/rand"
 	"reflect"
 )
 
@@ -12,148 +13,72 @@ import (
 // InitSchema assumes all $ref fields are already either
 // 1) resolved and replaced by a network request
 // 2) replaced by an empty object
-func InitSchema(s Schema, doPopLists bool, doRandom bool) (map[string]interface{}, error) {
+func InitSchema(s Schema, doPopLists, doRandom bool) (map[string]interface{}, error) {
 	data := make(map[string]interface{})
 	for key, value := range s.GetProperties() {
-
-		tup, err := prop2Tuple(value, key)
+		initValue, err := initSchema(value, doPopLists, doRandom, key)
 		if err != nil {
 			return nil, err
 		}
-
-		if doRandom {
-			if err := storeRandomTuple(tup, data, key, doPopLists); err != nil {
-				return nil, err
-			}
-		} else {
-			if err := storeTuple(tup, data, key, doPopLists); err != nil {
-				return nil, err
-			}
-		}
+		data[key] = initValue
 	}
 	return data, nil
 }
 
-// everything below this line is helper methods and types
-type tuple struct {
-	Data map[string]interface{}
-	Type Type
+func initSchema(schema interface{}, doPopLists, doRandom bool, k string) (interface{}, error) {
+	switch v := schema.(type) {
+	case Primitive:
+		if doRandom {
+			return initRandomPrimitive(v.Type, k)
+		}
+		return initPrimitive(v.Type, k)
+	case ArraySchema:
+		return initArray(v, doPopLists, doRandom, k)
+	case Schema:
+		return InitSchema(v, doPopLists, doRandom)
+	default:
+		return nil, fmt.Errorf("key '%v' has unrecognized type '%v'", k, reflect.TypeOf(schema))
+	}
 }
 
-func prop2Tuple(prop interface{}, key string) (tuple, error) {
-	v, ok := prop.(map[string]interface{})
-	if !ok {
-		return tuple{}, fmt.Errorf("key '%v' has unrecognized type '%v'", key, reflect.TypeOf(prop))
-	}
-	vTypeInter, ok := v["type"]
-	if !ok {
-		return tuple{}, fmt.Errorf("key '%v' does not have 'type' field", key)
-	}
-	vType, ok := vTypeInter.(string)
-	if !ok {
-		return tuple{}, fmt.Errorf("key '%v' must have 'type' field with string value", key)
-	}
-	return tuple{Data: v, Type: Type(vType)}, nil
-
-}
-
-func storeTuple(tup tuple, dstMap map[string]interface{}, key string, doPopLists bool) error {
-	switch tup.Type {
-
+func initPrimitive(t Type, k string) (interface{}, error) {
+	switch t {
 	case Null:
-		dstMap[key] = nil
+		return nil, nil
 	case String:
-		dstMap[key] = ""
+		return "", nil
 	case Boolean:
-		dstMap[key] = false
+		return false, nil
 	case Integer, Number:
-		dstMap[key] = 0
-
-	case Object:
-		childSchema, err := FromSchema(tup.Data, false, true)
-		if err != nil {
-			return err
-		}
-		childInst, err := InitSchema(childSchema, doPopLists, false)
-		if err != nil {
-			return err
-		}
-		dstMap[key] = childInst
-
-	case Array:
-		dstMap[key] = make([]interface{}, 0)
-		if doPopLists {
-			elemSchema, ok := tup.Data["items"]
-			if !ok {
-				return fmt.Errorf("key '%v' has type 'Array' but no 'items' field", key)
-			}
-			childTup, err := prop2Tuple(elemSchema, fmt.Sprintf("%v.items", key))
-			if err != nil {
-				return err
-			}
-			dstSlice, ok := dstMap[key].([]interface{})
-			if !ok {
-				return fmt.Errorf("type assertion failed in Array case")
-			}
-			newSlice, err := appendTuple(childTup, dstSlice, key)
-			if err != nil {
-				return err
-			}
-			dstMap[key] = newSlice
-		}
-
+		return 0, nil
 	default:
-		return fmt.Errorf("key '%v' has unrecognized 'type' field '%v'", key, tup.Type)
+		return nil, fmt.Errorf("key '%v' (primitive) has unrecognized type '%v'", k, t)
 	}
-	return nil
 }
 
-func appendTuple(tup tuple, dstSlice []interface{}, key string) ([]interface{}, error) {
-	var elem interface{}
-
-	switch tup.Type {
+func initRandomPrimitive(t Type, k string) (interface{}, error) {
+	switch t {
 	case Null:
-		elem = nil
+		return nil, nil
 	case String:
-		elem = ""
+		return randomString(), nil
 	case Boolean:
-		elem = false
-	case Number:
-		elem = 0
-
-	case Object:
-		childSchema, err := FromSchema(tup.Data, false, true)
-		if err != nil {
-			return nil, err
-		}
-		childInst, err := InitSchema(childSchema, true, false)
-		if err != nil {
-			return nil, err
-		}
-		elem = childInst
-
-	case Array:
-		elem = make([]interface{}, 0)
-		elemSchema, ok := tup.Data["items"]
-		if !ok {
-			return nil, fmt.Errorf("key '%v' has type 'Array' but no 'items' field", key)
-		}
-		childTup, err := prop2Tuple(elemSchema, fmt.Sprintf("%v.items", key))
-		if err != nil {
-			return nil, err
-		}
-		childSlice, ok := elem.([]interface{})
-		if !ok {
-			return nil, fmt.Errorf("type assertion failed in Array case")
-		}
-		newSlice, err := appendTuple(childTup, childSlice, key)
-		if err != nil {
-			return nil, err
-		}
-		elem = newSlice
-
+		return rand.Intn(2) != 0, nil
+	case Integer, Number:
+		return rand.Int(), nil
 	default:
-		return nil, fmt.Errorf("element of array at key '%v' has unrecognized 'type' field '%v'", key, tup.Type)
+		return nil, fmt.Errorf("key '%v' (primitive) has unrecognized type '%v'", k, t)
 	}
-	return append(dstSlice, elem), nil
+}
+
+func initArray(as ArraySchema, doPopLists, doRandom bool, k string) (interface{}, error) {
+	arr := make([]interface{}, 0)
+	if doPopLists {
+		elem, err := initSchema(as.Items, doPopLists, doRandom, k)
+		if err != nil {
+			return nil, err
+		}
+		arr = append(arr, elem)
+	}
+	return arr, nil
 }

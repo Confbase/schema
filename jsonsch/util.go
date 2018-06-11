@@ -20,7 +20,7 @@ func buildSchema(fromValue interface{}, dst *interface{}, params *FromExamplePar
 		*dst = NewNumber()
 
 	case []interface{}:
-		arr, err := NewArray(v, params)
+		arr, err := TodoRenameThisFunctionLmao(v, params)
 		if err != nil {
 			return err
 		}

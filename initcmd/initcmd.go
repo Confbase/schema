@@ -33,7 +33,7 @@ func Init(cfg Config, targets []string) {
 			os.Exit(1)
 		}
 	}
-	js, err := jsonsch.FromSchema(data, false, cfg.DoSkipRefs)
+	js, err := jsonsch.FromSchema(data, cfg.DoSkipRefs)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: input JSON is not a valid schema\n%v\n", err)
 		os.Exit(1)
