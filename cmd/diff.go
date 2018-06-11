@@ -35,7 +35,16 @@ schemas are output.
 There are two types of differences:
 
     1. A field is included in one schema but missing from the other
-    2. A field is in both schemas, but the type in each schema is not the same`,
+    2. A field is in both schemas, but the type in each schema is not the same
+
+EXIT STATUS
+
+If there are no differences, the program exits with status code 0.
+
+If there are differences, the program exits with status code 2.
+
+If there are any fatal errors, the program exits with status 1 and output is
+undefined.`,
 	Args: cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		diffCfg.Schema1, diffCfg.Schema2 = args[0], args[1]
