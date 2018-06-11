@@ -57,7 +57,7 @@ func Entry(cfg *Config) {
 		fmt.Println(d)
 	}
 	if len(diffs) != 0 {
-		os.Exit(1)
+		os.Exit(2)
 	}
 }
 
