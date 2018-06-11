@@ -23,9 +23,20 @@ import (
 var diffCfg diff.Config
 var diffCmd = &cobra.Command{
 	Use:   "diff",
-	Short: "Output the difference between two schemas",
-	Long:  `Outputs the difference between two schemas.`,
-	Args:  cobra.ExactArgs(2),
+	Short: "Output the structural differences between two files",
+	Long: `Outputs the structural differences between two schemas or files.
+
+If the files are both JSON schemas, they are interpreted as such and type
+differences between the schemas are output.
+
+Otherwise, their schemas are inferred and the differences between the inferred
+schemas are output.
+
+There are two types of differences:
+
+    1. A field is included in one schema but missing from the other
+    2. A field is in both schemas, but the type in each schema is not the same`,
+	Args: cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		diffCfg.Schema1, diffCfg.Schema2 = args[0], args[1]
 		diff.Entry(&diffCfg)
@@ -34,4 +45,7 @@ var diffCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(diffCmd)
+	diffCmd.Flags().StringVarP(&diffCfg.MissFrom1, "title-1", "1", "", "title of first schema")
+	diffCmd.Flags().StringVarP(&diffCfg.MissFrom2, "title-2", "2", "", "title of second schema")
+	diffCmd.Flags().BoolVarP(&diffCfg.DoSkipRefs, "skip-refs", "", false, "do not resolve $ref fields with a network request")
 }
