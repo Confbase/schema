@@ -69,7 +69,7 @@ func Init(cfg Config, targets []string) {
 			fmt.Fprintf(os.Stderr, "schema\n%v\n", err)
 			os.Exit(1)
 		}
-		err = decode.DemuxEncode(os.Stdout, inst, cfg.OutFmt(), cfg.DoPretty)
+		err = decode.DemuxEncode(f, inst, cfg.OutFmt(), cfg.DoPretty)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: failed to serialize instance of ")
 			fmt.Fprintf(os.Stderr, "schema\n%v\n", err)
