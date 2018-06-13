@@ -28,7 +28,7 @@ func InferEntry(cfg Config, targets []string) {
 	}
 
 	for _, t := range targets {
-		f, err := os.OpenFile(t, os.O_RDWR|os.O_CREATE, 0666)
+		f, err := os.OpenFile(t, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: failed to open '%v'\n%v\n", t, err)
 			os.Exit(1)
