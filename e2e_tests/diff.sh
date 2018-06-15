@@ -7,7 +7,7 @@ diff_array_of_objects_json1() {
     status="$?"
 
     expect_status='2'
-    expect="the field 'people.items.height' has differing types"
+    expect="the field 'people.items.height' has differing types between the first file and the second file"
 }
 
 diff_array_of_objects_json2() {
@@ -17,7 +17,7 @@ diff_array_of_objects_json2() {
     status="$?"
 
     expect_status='2'
-    expect="the field 'people.items.height' has differing types"
+    expect="the field 'people.items.height' has differing types between the first file and the second file"
 }
 
 diff_array_of_objects_json_same1() {
@@ -47,7 +47,7 @@ diff_minimal_differing_types_json1() {
     status="$?"
 
     expect_status='2'
-    expect="the field 'age' has differing types"
+    expect="the field 'age' has differing types between the first file and the second file"
 }
 
 diff_minimal_differing_types_json2() {
@@ -57,7 +57,7 @@ diff_minimal_differing_types_json2() {
     status="$?"
 
     expect_status='2'
-    expect="the field 'age' has differing types"
+    expect="the field 'age' has differing types between the first file and the second file"
 }
 
 diff_minimal_differing_types_json_same1() {
@@ -127,7 +127,7 @@ diff_array_of_objects_schema1() {
     status="$?"
 
     expect_status='2'
-    expect="the field 'people.items.height' has differing types"
+    expect="the field 'people.items.height' has differing types between the first file and the second file"
 }
 
 diff_array_of_objects_schema2() {
@@ -137,7 +137,7 @@ diff_array_of_objects_schema2() {
     status="$?"
 
     expect_status='2'
-    expect="the field 'people.items.height' has differing types"
+    expect="the field 'people.items.height' has differing types between the first file and the second file"
 }
 
 diff_array_of_objects_schema_same1() {
@@ -167,7 +167,7 @@ diff_minimal_differing_types_schema1() {
     status="$?"
 
     expect_status='2'
-    expect="the field 'age' has differing types"
+    expect="the field 'age' has differing types between the first file and the second file"
 }
 
 diff_minimal_differing_types_schema2() {
@@ -177,7 +177,7 @@ diff_minimal_differing_types_schema2() {
     status="$?"
 
     expect_status='2'
-    expect="the field 'age' has differing types"
+    expect="the field 'age' has differing types between the first file and the second file"
 }
 
 diff_minimal_differing_types_schema_same1() {
@@ -247,7 +247,7 @@ diff_array_of_objects_yaml1() {
     status="$?"
 
     expect_status='2'
-    expect="the field 'people.items.height' has differing types"
+    expect="the field 'people.items.height' has differing types between the first file and the second file"
 }
 
 diff_array_of_objects_yaml2() {
@@ -257,7 +257,7 @@ diff_array_of_objects_yaml2() {
     status="$?"
 
     expect_status='2'
-    expect="the field 'people.items.height' has differing types"
+    expect="the field 'people.items.height' has differing types between the first file and the second file"
 }
 
 diff_array_of_objects_yaml_same1() {
@@ -287,7 +287,7 @@ diff_minimal_differing_types_yaml1() {
     status="$?"
 
     expect_status='2'
-    expect="the field 'age' has differing types"
+    expect="the field 'age' has differing types between the first file and the second file"
 }
 
 diff_minimal_differing_types_yaml2() {
@@ -297,7 +297,7 @@ diff_minimal_differing_types_yaml2() {
     status="$?"
 
     expect_status='2'
-    expect="the field 'age' has differing types"
+    expect="the field 'age' has differing types between the first file and the second file"
 }
 
 diff_minimal_differing_types_yaml_same1() {
@@ -367,7 +367,7 @@ diff_array_of_objects_toml1() {
     status="$?"
 
     expect_status='2'
-    expect="the field 'people.items.height' has differing types"
+    expect="the field 'people.items.height' has differing types between the first file and the second file"
 }
 
 diff_array_of_objects_toml2() {
@@ -377,7 +377,7 @@ diff_array_of_objects_toml2() {
     status="$?"
 
     expect_status='2'
-    expect="the field 'people.items.height' has differing types"
+    expect="the field 'people.items.height' has differing types between the first file and the second file"
 }
 
 diff_array_of_objects_toml_same1() {
@@ -407,7 +407,7 @@ diff_minimal_differing_types_toml1() {
     status="$?"
 
     expect_status='2'
-    expect="the field 'age' has differing types"
+    expect="the field 'age' has differing types between the first file and the second file"
 }
 
 diff_minimal_differing_types_toml2() {
@@ -417,7 +417,7 @@ diff_minimal_differing_types_toml2() {
     status="$?"
 
     expect_status='2'
-    expect="the field 'age' has differing types"
+    expect="the field 'age' has differing types between the first file and the second file"
 }
 
 diff_minimal_differing_types_toml_same1() {
