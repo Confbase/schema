@@ -54,7 +54,11 @@ undefined.`,
 
 func init() {
 	rootCmd.AddCommand(diffCmd)
-	diffCmd.Flags().StringVarP(&diffCfg.MissFrom1, "title-1", "1", "", "title of first schema")
-	diffCmd.Flags().StringVarP(&diffCfg.MissFrom2, "title-2", "2", "", "title of second schema")
+	diffCmd.Flags().StringVarP(&diffCfg.Title1, "title-1", "1", "", "title of first schema")
+	diffCmd.Flags().StringVarP(&diffCfg.Title2, "title-2", "2", "", "title of second schema")
+	diffCmd.Flags().StringVarP(&diffCfg.MissFrom1, "miss-from-1", "", "the first file", "title of first schema in 'missing from' messages")
+	diffCmd.Flags().StringVarP(&diffCfg.MissFrom2, "miss-from-2", "", "the second file", "title of second schema in 'missing from' messages")
+	diffCmd.Flags().StringVarP(&diffCfg.Differ1, "differ-1", "", "the first file", "title of first schema in 'differing types' messages")
+	diffCmd.Flags().StringVarP(&diffCfg.Differ2, "differ-2", "", "the second file", "title of second schema in 'differing types' messages")
 	diffCmd.Flags().BoolVarP(&diffCfg.DoSkipRefs, "skip-refs", "", false, "do not resolve $ref fields with a network request")
 }

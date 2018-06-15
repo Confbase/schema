@@ -33,11 +33,13 @@ func (m *MissingField) getField() string {
 }
 
 type DifferingTypes struct {
-	field string
+	field  string
+	title1 string
+	title2 string
 }
 
 func (d *DifferingTypes) String() string {
-	return fmt.Sprintf("the field '%v' has differing types", d.field)
+	return fmt.Sprintf("the field '%v' has differing types between %v and %v", d.field, d.title1, d.title2)
 }
 
 func (d *DifferingTypes) setField(field string) {

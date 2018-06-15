@@ -10,8 +10,17 @@ import (
 	"github.com/Confbase/schema/jsonsch"
 )
 
-func Diff(s1, s2 jsonsch.Schema, missFrom1, missFrom2 string) ([]Difference, error) {
-	return diff(s1, s2, missFrom1, missFrom2, "")
+func Diff(s1, s2 jsonsch.Schema, titles *titleStrings) ([]Difference, error) {
+	if titles.Title1 != "" {
+		titles.MissFrom1 = titles.Title1
+		titles.Differ1 = titles.Title1
+	}
+	if titles.Title2 != "" {
+		titles.MissFrom2 = titles.Title2
+		titles.Differ2 = titles.Title2
+	}
+
+	return diff(s1, s2, "", titles)
 }
 
 func Entry(cfg *Config) {
@@ -50,7 +59,7 @@ func Entry(cfg *Config) {
 		nilOrFatal(err)
 	}
 
-	diffs, err := Diff(s1, s2, cfg.MissFrom1, cfg.MissFrom2)
+	diffs, err := Diff(s1, s2, &cfg.titleStrings)
 	nilOrFatal(err)
 
 	for _, d := range diffs {
@@ -61,20 +70,21 @@ func Entry(cfg *Config) {
 	}
 }
 
-func diff(s1, s2 jsonsch.Schema, missFrom1, missFrom2, parentKey string) ([]Difference, error) {
-	if missFrom1 == "" {
-		missFrom1 = "the first file"
-	}
-	if missFrom2 == "" {
-		missFrom2 = "the second file"
-	}
-
+func diff(s1, s2 jsonsch.Schema, parentKey string, titles *titleStrings) ([]Difference, error) {
 	s1Props, s2Props := s1.GetProperties(), s2.GetProperties()
-	s1Diffs, err := diffPropsFrom(s1Props, s2Props, missFrom1, missFrom2)
+	s1Diffs, err := diffPropsFrom(s1Props, s2Props, titles)
 	if err != nil {
 		return nil, err
 	}
-	s2Diffs, err := diffPropsFrom(s2Props, s1Props, missFrom2, missFrom1)
+	switchedTitles := titleStrings{
+		Title1:    titles.Title2,
+		Title2:    titles.Title1,
+		MissFrom1: titles.MissFrom2,
+		MissFrom2: titles.MissFrom1,
+		Differ1:   titles.Differ2,
+		Differ2:   titles.Differ1,
+	}
+	s2Diffs, err := diffPropsFrom(s2Props, s1Props, &switchedTitles)
 	if err != nil {
 		return nil, err
 	}
@@ -113,15 +123,15 @@ func filterUniqueDiffs(newDiffs []Difference, differingTypes map[string]bool) ([
 // one must call
 // diffPropsFrom(props1, props2) AND diffPropsFrom(props2, props1)
 // and merge the results
-func diffPropsFrom(props1, props2 map[string]interface{}, missFrom1, missFrom2 string) ([]Difference, error) {
+func diffPropsFrom(props1, props2 map[string]interface{}, titles *titleStrings) ([]Difference, error) {
 	diffs := make([]Difference, 0)
 	for k, v1 := range props1 {
 		v2, ok := props2[k]
 		if !ok {
-			diffs = append(diffs, &MissingField{k, missFrom2})
+			diffs = append(diffs, &MissingField{k, titles.MissFrom2})
 			continue
 		}
-		subDiffs, err := diffSomething(v1, v2, missFrom1, missFrom2, k)
+		subDiffs, err := diffSomething(v1, v2, k, titles)
 		if err != nil {
 			return nil, err
 		}
@@ -130,7 +140,7 @@ func diffPropsFrom(props1, props2 map[string]interface{}, missFrom1, missFrom2 s
 	return diffs, nil
 }
 
-func diffSomething(v1, v2 interface{}, missFrom1, missFrom2, k string) ([]Difference, error) {
+func diffSomething(v1, v2 interface{}, k string, titles *titleStrings) ([]Difference, error) {
 	diffs := make([]Difference, 0)
 
 	type1, err := getType(v1, k)
@@ -142,7 +152,11 @@ func diffSomething(v1, v2 interface{}, missFrom1, missFrom2, k string) ([]Differ
 		return nil, err
 	}
 	if type1 != type2 {
-		diffs = append(diffs, &DifferingTypes{k})
+		diffs = append(diffs, &DifferingTypes{
+			field:  k,
+			title1: titles.Differ1,
+			title2: titles.Differ2,
+		})
 		return diffs, nil
 	}
 
@@ -158,7 +172,7 @@ func diffSomething(v1, v2 interface{}, missFrom1, missFrom2, k string) ([]Differ
 		if !ok {
 			return nil, fmt.Errorf("saw type 'array' but internal type is not array")
 		}
-		subDiffs, err := diffSomething(a1.Items, a2.Items, missFrom1, missFrom2, "items")
+		subDiffs, err := diffSomething(a1.Items, a2.Items, "items", titles)
 		if err != nil {
 			return nil, err
 		}
@@ -175,7 +189,7 @@ func diffSomething(v1, v2 interface{}, missFrom1, missFrom2, k string) ([]Differ
 		if !ok {
 			return nil, fmt.Errorf("saw type 'object' but internal type is not object")
 		}
-		subDiffs, err := Diff(s1, s2, missFrom1, missFrom2)
+		subDiffs, err := Diff(s1, s2, titles)
 		if err != nil {
 			return nil, err
 		}
