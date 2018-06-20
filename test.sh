@@ -17,6 +17,15 @@ if [ ! -z "$gofmt_output" ]; then
 fi
 printf "OK\n"
 
+printf "Running go vet tests..."
+go_vet_output="$(go vet -v ./... 2>&1 | grep ':' )"
+# grep ':' is a hack-ish way to only match path/to/file.go:lineno:colno: vet msg
+if [ ! -z "$go_vet_output" ]; then
+    printf "FAIL. output:\n$go_vet_output" 1>&2
+    exit 1
+fi
+printf "OK\n"
+
 printf "Running 'go install'..."
 go_install_output=`go install 2>&1`
 if [ ! -z "$go_install_output" ]; then
