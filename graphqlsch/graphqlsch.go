@@ -45,25 +45,23 @@ type Field struct {
 }
 
 func (f Field) ToString() string {
-	var fmtStr string
-	var typeFmtStr string
+	var typeStr string
 	if f.IsArray {
 		if f.IsElemNullable {
-			typeFmtStr = "%v"
+			typeStr = fmt.Sprintf("%v", f.Type)
 		} else {
-			typeFmtStr = "%v!"
+			typeStr = fmt.Sprintf("%v!", f.Type)
 		}
 		for level := uint(0); level < f.ArrayDim; level++ {
-			typeFmtStr = fmt.Sprintf("[%v]", typeFmtStr)
+			typeStr = fmt.Sprintf("[%v]", typeStr)
 		}
 	} else {
-		typeFmtStr = "%v"
+		typeStr = fmt.Sprintf("%v", f.Type)
 	}
 	if !f.IsNullable {
-		typeFmtStr = fmt.Sprintf("%v!", typeFmtStr)
+		typeStr = fmt.Sprintf("%v!", typeStr)
 	}
-	fmtStr = fmt.Sprintf("    %%v: %v", typeFmtStr)
-	return fmt.Sprintf(fmtStr, f.Name, f.Type)
+	return fmt.Sprintf("    %v: %v", f.Name, typeStr)
 }
 
 type PrimitiveType string
