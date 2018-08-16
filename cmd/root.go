@@ -30,11 +30,12 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "schema",
 	Short: "A tool for inferring and instantiating schemas",
-	Long: `This tool provides three subcommands:
+	Long: `This tool provides four subcommands:
 
 1. infer     : Infer the schema of example data
 2. init      : Initialize an instance of a schema with default values
 3. translate : Translate data from one format to another
+4. diff      : Print the structural differences between two files
 
 Supported formats: JSON, YAML, TOML, XML, GraphQL schema, JSON Schema
 

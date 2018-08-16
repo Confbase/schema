@@ -134,7 +134,7 @@ init_json_follow_ref() {
     "description": "A representation of a person, company, organization, or place",
     "type": "object",
     "properties": {
-        "geo": { "$ref": "http://json-schema.org/geo" }
+        "geo": { "$ref": "http://json-schema.org/learn/examples/geographical-location.schema.json" }
     }
 }' | schema init 2>&1`
     status="$?"
@@ -279,7 +279,7 @@ init_yaml_follow_ref() {
     "description": "A representation of a person, company, organization, or place",
     "type": "object",
     "properties": {
-        "geo": { "$ref": "http://json-schema.org/geo" }
+        "geo": { "$ref": "http://json-schema.org/learn/examples/geographical-location.schema.json" }
     }
 }' | schema init --yaml 2>&1`
     status="$?"
@@ -300,7 +300,7 @@ init_yaml_skip_ref() {
     "description": "A representation of a person, company, organization, or place",
     "type": "object",
     "properties": {
-        "geo": { "$ref": "http://json-schema.org/geo" }
+        "geo": { "$ref": "http://json-schema.org/learn/examples/geographical-location.schema.json" }
     }
 }' | schema init --yaml --skip-refs 2>&1`
     status="$?"
@@ -416,7 +416,7 @@ init_toml_follow_ref() {
     "description": "A representation of a person, company, organization, or place",
     "type": "object",
     "properties": {
-        "geo": { "$ref": "http://json-schema.org/geo" }
+        "geo": { "$ref": "http://json-schema.org/learn/examples/geographical-location.schema.json" }
     }
 }' | schema init --toml 2>&1`
     status="$?"
@@ -437,7 +437,7 @@ init_toml_skip_ref() {
     "description": "A representation of a person, company, organization, or place",
     "type": "object",
     "properties": {
-        "geo": { "$ref": "http://json-schema.org/geo" }
+        "geo": { "$ref": "http://json-schema.org/learn/examples/geographical-location.schema.json" }
     }
 }' | schema init --toml --skip-refs 2>&1`
     status="$?"
@@ -561,7 +561,7 @@ init_xml_follow_ref() {
     "description": "A representation of a person, company, organization, or place",
     "type": "object",
     "properties": {
-        "geo": { "$ref": "http://json-schema.org/geo" }
+        "geo": { "$ref": "http://json-schema.org/learn/examples/geographical-location.schema.json" }
     }
 }' | schema init --xml 2>&1`
     status="$?"
@@ -584,7 +584,7 @@ init_xml_skip_ref() {
     "description": "A representation of a person, company, organization, or place",
     "type": "object",
     "properties": {
-        "geo": { "$ref": "http://json-schema.org/geo" }
+        "geo": { "$ref": "http://json-schema.org/learn/examples/geographical-location.schema.json" }
     }
 }' | schema init --xml --skip-refs 2>&1`
     status="$?"
