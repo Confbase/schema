@@ -1,5 +1,7 @@
 package jsonsch
 
+import "sort"
+
 type SchemaInclReq struct {
 	SchemaField string                 `json:"$schema,omitempty"`
 	Title       string                 `json:"title"`
@@ -18,7 +20,8 @@ func NewInclReq() *SchemaInclReq {
 }
 
 func (s *SchemaInclReq) SetRequired(r []string) {
-	s.Required = r
+	s.Required = append(r)
+	sort.Strings(s.Required)
 }
 
 func (s *SchemaInclReq) GetRequired() []string {

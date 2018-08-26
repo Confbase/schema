@@ -339,9 +339,9 @@ There is only one formatting test. It ensures all .go source files are gofmt'd.
 
 The end-to-end tests require bash and an internet connection. To skip tests
 which require an internet connection, run with the `--offline` flag:
-`./test.sh --offline`.
+`./test_all --offline`.
 
-To run all tests (unit, formatting, and end-to-end), execute `./test.sh`.
+To run all tests (unit, formatting, and end-to-end), execute `./test_all`.
 
 # Contributing
 

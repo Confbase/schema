@@ -6,4 +6,4 @@ go:
   - "1.10.x"
   - master
 
-script: ./test.sh
+script: ./test_all
