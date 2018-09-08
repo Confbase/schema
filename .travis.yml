@@ -6,4 +6,4 @@ go:
   - "1.10.x"
   - master
 
-script: ./test_all
+script: env GO111MODULE=on ./test_all
