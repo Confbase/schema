@@ -37,7 +37,7 @@ run_test() {
 
     if [ ! "$status" = "$expect_status" ]; then
         printf "FAIL. Expected status $expect_status, but got $status\n"
-        printf "Output:\n$output"
+        printf "Output:\n$output\n"
         exit 1
     fi
 
