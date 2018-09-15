@@ -124,13 +124,13 @@ Run `go get -u github.com/Confbase/schema` to build from source.
 
 # FAQ
 
-* [How do infer I GraphQL schemas from data with null values?](#how-do-i-infer-graphql-schemas-from-data-with-null-values)
+* [How do I infer GraphQL schemas from data with null values?](#how-do-i-infer-graphql-schemas-from-data-with-null-values)
 * [How do I make fields required in inferred schemas?](#how-do-i-make-fields-required-in-inferred-schemas)
 * [How do I generate compact schemas?](#how-do-i-generate-compact-schemas)
-* [Why am I getting the error 'toml: cannot marshal nil interface {}'?](#why-am-i-getting-the-error-toml-cannot-marshal-nil-interface-)
+* [Why am I getting the error 'toml: cannot marshal nil interface {}'?](#why-am-i-getting-the-error-toml-cannot-marshal-nil-interface)
 * [What is the behavior of inferring and translating XML?](#what-is-the-behavior-of-inferring-and-translating-xml)
-* [How do I initialize empty lists?](#how-can-i-initialize-empty-lists)
-* [Where is the $schema field in inferred schemas?](#where-is-the-schema-field-in-inferred-schemas)
+* [How do I initialize empty lists?](#how-do-i-initialize-empty-lists)
+* [Where is the `$schema` field in inferred schemas?](#where-is-the-schema-field-in-inferred-schemas)
 
 ### How do I infer GraphQL schemas from data with null values?
 
