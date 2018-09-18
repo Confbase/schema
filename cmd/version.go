@@ -24,8 +24,8 @@ const version = "v0.0.1"
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Outputs the version of scheme",
-	Long:  `Outputs the current version of scheme installed.`,
+	Short: "Outputs the version of schema",
+	Long:  `Outputs the current version of schema installed.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println(version)
 	},
